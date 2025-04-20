@@ -120,8 +120,8 @@ main();
 //actualizarProducto();
 //eliminarProducto();
 //insertarClientesPrueba();
-actualizarCiudadCliente();
+//actualizarCiudadCliente();
 //actualizarCiudadClientesBogota();
 //consultarClientes();
 //eliminarClientePorNombre("Jose"); // Eliminar cliente por nombre
-//eliminarClientesPorCiudad("Bogotá");  // Eliminar clientes por ciudad
+eliminarClientesPorCiudad("Cali");  // Eliminar clientes por ciudad
