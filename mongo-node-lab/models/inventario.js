@@ -3,12 +3,12 @@ const Producto = require("./producto.js");
 const Proveedor = require("./proveedor.js");
 
 const InventarioSchema = new mongoose.Schema({
-    producto: { 
+    productoId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Producto", 
         required: true 
     },
-    proveedor: { 
+    proveedorId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Proveedor", 
         required: true 
