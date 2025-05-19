@@ -40,4 +40,14 @@ function requireAdmin(req, res, next) {
   }
 }
 
-module.exports = { register, login, authMiddleware, requireAdmin };
+function requireRole(role) {
+  return (req, res, next) => {
+    if (req.user && req.user.rol === role) {
+      next();
+    } else {
+      res.status(403).json({ error: 'Acceso denegado' });
+    }
+  };
+}
+
+module.exports = { register, login, authMiddleware, requireAdmin, requireRole };

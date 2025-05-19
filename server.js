@@ -1,8 +1,19 @@
+require('dotenv').config({ path: './mongo-node-lab/.env' });
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('./models/user');
+const cors = require('cors');
+const { login } = require('./mongo-node-lab/auth');
+const { register } = require('./mongo-node-lab/auth');
+const User = require('./mongo-node-lab/models/user');
+const { connectMongoose } = require('./mongo-node-lab/database');
+
+const app = express();
+
+// Permite peticiones desde el frontend Next.js
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(express.json());
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
@@ -26,18 +37,42 @@ passport.deserializeUser(async (id, done) => {
   done(null, user);
 });
 
-const app = express();
 app.use(session({ secret: 'otroSecreto', resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Endpoint para login con usuario y contraseña
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const { user, token } = await login(email, password);
+    res.json({ user, token });
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+});
+
+// Endpoints para Google OAuth
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
-    res.send('Login con Google exitoso');
+    res.redirect(`http://localhost:3000?nombre=${encodeURIComponent(req.user.nombre)}`);
   }
 );
 
-app.listen(3000, () => console.log('Servidor Express en http://localhost:3000'));
+// Endpoint para registrar usuario
+app.post('/api/register', async (req, res) => {
+  const { nombre, email, password } = req.body;
+  try {
+    const user = await register(nombre, email, password);
+    res.json({ user });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+connectMongoose().then(() => {
+  app.listen(3001, () => console.log('Servidor Express en http://localhost:3001'));
+});
