@@ -4,7 +4,7 @@ async function main() {
   try {
     await connectMongoose();
 
-    const { Categoria, Proveedor, Producto, User, Pedido, Inventario } = models;
+    const { Categoria, Proveedor, Producto, User, Pedido, Inventario, Administrador } = models;
     
     // Insertar una categoría
     const categoria = await Categoria.create({
@@ -36,6 +36,13 @@ async function main() {
       email: 'marialopez@gmail.com',
       password: 'miPassword'
     });
+
+        // Insertar un administrador
+const admin = await Administrador.create({
+  nombre: 'Admin Pacheco',
+  email: 'adminesteban@gmail.com',
+  password: 'admin123'
+});
 
     // Insertar un pedido
     const pedido = await Pedido.create({

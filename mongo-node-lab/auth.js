@@ -32,4 +32,12 @@ function authMiddleware(req, res, next) {
   }
 }
 
-module.exports = { register, login, authMiddleware };
+function requireAdmin(req, res, next) {
+  if (req.user && req.user.rol === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ error: 'Acceso solo para administradores' });
+  }
+}
+
+module.exports = { register, login, authMiddleware, requireAdmin };

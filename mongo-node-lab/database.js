@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { MongoClient } = require("mongodb");
+const { MongoClient, Admin } = require("mongodb");
 const mongoose = require("mongoose");
 
 const uri = process.env.MONGO_URI;
@@ -37,6 +37,7 @@ const Categoria = require('./models/categoria');
 const Proveedor = require('./models/proveedor');
 const Pedido = require('./models/pedido');
 const Inventario = require('./models/inventario');
+const Administrador = require('./models/administrador');
 
 module.exports = { 
   connectDB, 
@@ -48,6 +49,7 @@ module.exports = {
     Categoria,
     Proveedor,
     Pedido,
-    Inventario
+    Inventario,
+    Administrador
   }
 };
