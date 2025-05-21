@@ -47,7 +47,7 @@ export default function StoreHomePage() {
         product.nombre.toLowerCase().includes(search.toLowerCase())
       )
     );
-  }, [search, products]);
+  }, [search, products])
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -109,7 +109,7 @@ export default function StoreHomePage() {
               </ul>
             )}
           </li>
-          <li><a href="#" className="hover:text-[#6B6C4F]">Mi Cuenta</a></li>
+          <li><a href="/account" className="hover:text-[#6B6C4F]">Mi Cuenta</a></li>
         </ul>
         {nombre ? (
           <button

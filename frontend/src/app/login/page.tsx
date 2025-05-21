@@ -19,6 +19,8 @@ export default function LoginPage() {
       setMsg('Login exitoso. Redirigiendo...');
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('nombre', res.data.user.nombre);
+      localStorage.setItem('email', res.data.user.email);
+      localStorage.setItem('rol', res.data.user.rol);
       setTimeout(() => router.push('/'), 1500);
     } catch (err: any) {
       setMsg(err.response?.data?.error || 'Error al iniciar sesión');

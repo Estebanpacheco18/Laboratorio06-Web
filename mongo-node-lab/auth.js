@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('./models/user');
+const Administrador = require('./models/administrador');
 
 const SECRET = process.env.JWT_SECRET || 'secreto';
 
@@ -11,13 +12,31 @@ async function register(nombre, email, password) {
 }
 
 async function login(email, password) {
-  const user = await User.findOne({ email });
-  if (!user) throw new Error('El usuario no ha sido encontrado');
-  const valid = await bcrypt.compare(password, user.password);
+  // Busca primero en usuarios normales
+  let user = await User.findOne({ email });
+  if (user) {
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) throw new Error('La contraseña es incorrecta');
+    // Si el usuario tiene rol, úsalo; si no, default a 'user'
+    const rol = user.rol || 'user';
+    const token = jwt.sign({ id: user._id, email: user.email, rol }, SECRET, { expiresIn: '1h' });
+    return { user: { ...user.toObject(), rol }, token };
+  }
+
+  // Si no está en users, busca en administradores
+  const admin = await Administrador.findOne({ email });
+  if (!admin) throw new Error('El usuario no ha sido encontrado');
+  const valid = await bcrypt.compare(password, admin.password);
   if (!valid) throw new Error('La contraseña es incorrecta');
-  // Genera los tokens
-  const token = jwt.sign({ id: user._id, email: user.email }, SECRET, { expiresIn: '1h' });
-  return { user, token };
+  // Crea un objeto user compatible y agrega rol: 'admin'
+  const adminUser = {
+    _id: admin._id,
+    nombre: admin.nombre,
+    email: admin.email,
+    rol: 'admin'
+  };
+  const token = jwt.sign({ id: admin._id, email: admin.email, rol: 'admin' }, SECRET, { expiresIn: '1h' });
+  return { user: adminUser, token };
 }
 
 function authMiddleware(req, res, next) {
