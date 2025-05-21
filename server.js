@@ -8,6 +8,7 @@ const { login } = require('./mongo-node-lab/auth');
 const { register } = require('./mongo-node-lab/auth');
 const User = require('./mongo-node-lab/models/user');
 const { connectMongoose } = require('./mongo-node-lab/database');
+const { models } = require('./mongo-node-lab/database');
 
 const app = express();
 
@@ -70,6 +71,15 @@ app.post('/api/register', async (req, res) => {
     res.json({ user });
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+app.get('/api/products', async (req, res) => {
+  try {
+    const productos = await models.Producto.find().lean();
+    res.json(productos);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener productos' });
   }
 });
 

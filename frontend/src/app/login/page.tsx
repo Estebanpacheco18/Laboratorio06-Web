@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { FcGoogle } from 'react-icons/fc';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -9,8 +11,8 @@ export default function LoginPage() {
   const [msg, setMsg] = useState('');
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setMsg('');
     try {
       const res = await axios.post('http://localhost:3001/api/login', { email, password });
@@ -28,29 +30,52 @@ export default function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleLogin} style={{ maxWidth: 400, margin: 'auto', padding: 20 }}>
-      <h2>Iniciar sesión</h2>
-      <input
-        type="email"
-        placeholder="Correo"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        required
-        style={{ display: 'block', marginBottom: 10, width: '100%' }}
-      />
-      <input
-        type="password"
-        placeholder="Contraseña"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        required
-        style={{ display: 'block', marginBottom: 10, width: '100%' }}
-      />
-      <button type="submit" style={{ width: '100%', marginBottom: 10 }}>Entrar</button>
-      <button type="button" onClick={handleGoogle} style={{ width: '100%', background: '#4285F4', color: 'white' }}>
-        Iniciar sesión con Google
-      </button>
-      <p>{msg}</p>
-    </form>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-[#F5F0E6] text-[#4C4C3A] px-4">
+      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center mb-6">Inicia sesión en StockNSELL</h1>
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Correo electrónico"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="w-full p-3 border border-gray-300 rounded-xl mb-4"
+          />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            className="w-full p-3 border border-gray-300 rounded-xl mb-4"
+          />
+          <button
+            type="submit"
+            className="w-full bg-[#6B6C4F] text-white py-3 rounded-xl hover:bg-[#4C4C3A] mb-4"
+          >
+            Iniciar sesión
+          </button>
+        </form>
+        <button
+          type="button"
+          onClick={handleGoogle}
+          className="w-full flex items-center justify-center gap-2 border py-2 rounded-xl hover:bg-gray-100"
+        >
+          <FcGoogle size={20} /> Iniciar con Google
+        </button>
+        <p className="text-center mt-4 text-sm">
+          ¿No tienes cuenta?{' '}
+          <Link href="/register" className="text-[#6B6C4F] font-semibold hover:underline">
+            Regístrate aquí
+          </Link>
+        </p>
+        {msg && (
+          <div className="mt-4 text-center text-sm" style={{ color: msg.includes('exitoso') ? 'green' : 'red' }}>
+            {msg}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
