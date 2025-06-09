@@ -48,6 +48,7 @@ app.use(session({ secret: 'otroSecreto', resave: false, saveUninitialized: false
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Para el usuario
 // Endpoint para login con usuario y contraseña
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
@@ -119,6 +120,25 @@ app.get('/api/products', async (req, res) => {
     res.json(productos);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener productos' });
+  }
+});
+
+app.get('/api/categories', async (req, res) => {
+  try {
+    const categorias = await models.Categoria.find().lean();
+    res.json(categorias);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener categorías' });
+  }
+});
+
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const producto = await models.Producto.findById(req.params.id).lean();
+    if (!producto) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json(producto);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener producto' });
   }
 });
 

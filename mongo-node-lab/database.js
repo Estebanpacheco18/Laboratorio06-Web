@@ -22,10 +22,10 @@ async function connectMongoose() {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
-    console.log("✅ Conectado a MongoDB con Mongoose");
+    console.log("Conectado a MongoDB con Mongoose");
     return mongoose.connection;
   } catch (error) {
-    console.error("❌ Error al conectar con Mongoose:", error);
+    console.error("Error al conectar con Mongoose:", error);
     throw error;
   }
 }
