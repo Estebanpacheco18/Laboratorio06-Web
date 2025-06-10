@@ -45,22 +45,10 @@ export default function AccountPage() {
         </div>
         <div className="flex gap-4 flex-wrap justify-center md:justify-start">
           <button
-            onClick={() => handleNavigate('/')}
-            className="px-4 py-2 rounded-xl hover:bg-[#e0dbc7] transition font-medium"
-          >
-            Inicio
-          </button>
-          <button
             onClick={() => handleNavigate('/favoritos')}
             className="px-4 py-2 rounded-xl hover:bg-[#e0dbc7] transition font-medium"
           >
             Favoritos
-          </button>
-          <button
-            onClick={() => handleNavigate('/categorias')}
-            className="px-4 py-2 rounded-xl hover:bg-[#e0dbc7] transition font-medium"
-          >
-            Categorías
           </button>
           <button
             onClick={() => handleNavigate('/account')}

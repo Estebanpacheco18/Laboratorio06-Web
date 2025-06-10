@@ -115,8 +115,13 @@ app.post('/api/register',
 
 app.get('/api/products', async (req, res) => {
   try {
-    const productos = await models.Producto.find().lean();
-    res.json(productos);
+    const productos = await models.Producto.find().populate('categoriaId').lean();
+    // Cambia la estructura para que cada producto tenga un campo 'categoria' con el nombre
+    const productosConCategoria = productos.map(p => ({
+      ...p,
+      categoria: p.categoriaId ? p.categoriaId.nombre : null
+    }));
+    res.json(productosConCategoria);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener productos' });
   }

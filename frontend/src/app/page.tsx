@@ -11,6 +11,7 @@ export default function StoreHomePage() {
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [categories] = useState(['Electrónica', 'Ropa', 'Hogar', 'Deportes']);
   const [nombre, setNombre] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -39,10 +40,11 @@ export default function StoreHomePage() {
   useEffect(() => {
     setFilteredProducts(
       products.filter(product =>
-        product.nombre.toLowerCase().includes(search.toLowerCase())
+        product.nombre.toLowerCase().includes(search.toLowerCase()) &&
+        (!selectedCategory || (product.categoria === selectedCategory))
       )
     );
-  }, [search, products]);
+  }, [search, products, selectedCategory]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -75,7 +77,6 @@ export default function StoreHomePage() {
 
         <div className="flex items-center gap-4">
           <ul className="hidden md:flex gap-6 font-medium">
-            <li><a href="#" className="hover:text-[#6B6C4F] transition">Inicio</a></li>
             <li><a href="#" className="hover:text-[#6B6C4F] transition">Favoritos</a></li>
             <li className="relative">
               <button
@@ -86,12 +87,21 @@ export default function StoreHomePage() {
               </button>
               {showCategories && (
                 <ul className="absolute top-full mt-2 bg-white border rounded-lg shadow-md w-40 z-50 ring-1 ring-gray-200 overflow-hidden">
+                  <li
+                    className={`px-4 py-2 hover:bg-[#F0EBE0] cursor-pointer text-sm transition ${selectedCategory === null ? 'font-bold text-[#6B6C4F]' : ''}`}
+                    onClick={() => {
+                      setSelectedCategory(null);
+                      setShowCategories(false);
+                    }}
+                  >
+                    Todas las categorías
+                  </li>
                   {categories.map((cat, i) => (
                     <li
                       key={i}
-                      className="px-4 py-2 hover:bg-[#F0EBE0] cursor-pointer text-sm transition"
+                      className={`px-4 py-2 hover:bg-[#F0EBE0] cursor-pointer text-sm transition ${selectedCategory === cat ? 'font-bold text-[#6B6C4F]' : ''}`}
                       onClick={() => {
-                        alert(`Categoría seleccionada: ${cat}`);
+                        setSelectedCategory(cat);
                         setShowCategories(false);
                       }}
                     >
@@ -124,7 +134,9 @@ export default function StoreHomePage() {
 
       {/* PRODUCTOS */}
       <section className="py-12 px-6">
-        <h3 className="text-2xl font-semibold mb-6 text-[#2E2F1B]">Productos</h3>
+        <h3 className="text-2xl font-semibold mb-6 text-[#2E2F1B]">
+          Productos {selectedCategory && <span className="text-base text-[#6B6C4F]">/ {selectedCategory}</span>}
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredProducts.length === 0 ? (
             <p className="col-span-full text-center text-gray-500">No hay productos para mostrar.</p>
