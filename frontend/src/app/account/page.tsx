@@ -9,6 +9,7 @@ export default function AccountPage() {
   const [email, setEmail] = useState<string | null>(null);
   const [rol, setRol] = useState<string | null>(null);
   const [cart, setCart] = useState<any[]>([]);
+  const [isLogged, setIsLogged] = useState<boolean>(false);
   const router = useRouter();
 
   // Leer datos y carrito al cargar la página
@@ -20,6 +21,7 @@ export default function AccountPage() {
     if (storedCart) {
       setCart(JSON.parse(storedCart));
     }
+    setIsLogged(!!localStorage.getItem('token'));
   }, []);
 
   // Sincronizar carrito si cambia en otra pestaña o al volver a la página
@@ -31,6 +33,7 @@ export default function AccountPage() {
       } else {
         setCart([]);
       }
+      setIsLogged(!!localStorage.getItem('token'));
     };
     const handleFocus = () => {
       const storedCart = localStorage.getItem('cart');
@@ -39,6 +42,7 @@ export default function AccountPage() {
       } else {
         setCart([]);
       }
+      setIsLogged(!!localStorage.getItem('token'));
     };
     window.addEventListener('storage', handleStorage);
     window.addEventListener('focus', handleFocus);
@@ -53,6 +57,7 @@ export default function AccountPage() {
     localStorage.removeItem('nombre');
     localStorage.removeItem('email');
     localStorage.removeItem('rol');
+    setIsLogged(false);
     router.push('/login');
   };
 
@@ -116,12 +121,22 @@ export default function AccountPage() {
               </span>
             )}
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-800 transition font-medium"
-          >
-            Cerrar sesión
-          </button>
+          {/* Botón de sesión */}
+          {isLogged ? (
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-800 transition font-medium"
+            >
+              Cerrar sesión
+            </button>
+          ) : (
+            <button
+              onClick={() => router.push('/login')}
+              className="px-4 py-2 rounded-xl bg-[#6B6C4F] text-white hover:bg-[#4C4C3A] transition font-medium"
+            >
+              Iniciar sesión
+            </button>
+          )}
         </div>
       </nav>
 
@@ -141,12 +156,21 @@ export default function AccountPage() {
             </p>
           </div>
           <div className="mt-8 w-full flex flex-col gap-4">
-            <button
-              onClick={handleLogout}
-              className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full"
-            >
-              Cerrar sesión
-            </button>
+            {isLogged ? (
+              <button
+                onClick={handleLogout}
+                className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full"
+              >
+                Cerrar sesión
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push('/login')}
+                className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full"
+              >
+                Iniciar sesión
+              </button>
+            )}
             {rol === 'admin' && (
               <button
                 onClick={handleGoAdmin}
