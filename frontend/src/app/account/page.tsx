@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import a from "next/link";
+import Link from "next/link";
 
 export default function AccountPage() {
   const [nombre, setNombre] = useState<string | null>(null);
@@ -65,8 +65,25 @@ export default function AccountPage() {
     router.push('/admin');
   };
 
-  const handleNavigate = (path: string) => {
-    router.push(path);
+  const addToCart = (product: any) => {
+    setCart(prev => {
+      // Verifica si ya existe el producto en el carrito
+      const existing = prev.find((item: any) => item.productId === product._id);
+      let updatedCart;
+      if (existing) {
+        // Si existe, suma la cantidad
+        updatedCart = prev.map((item: any) =>
+          item.productId === product._id
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        );
+      } else {
+        // Si no existe, lo agrega
+        updatedCart = [...prev, { productId: product._id, cantidad: 1 }];
+      }
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      return updatedCart;
+    });
   };
 
   return (
@@ -74,34 +91,26 @@ export default function AccountPage() {
       {/* NAVBAR */}
       <nav className="flex flex-col md:flex-row justify-between items-center px-6 py-4 bg-white shadow-md gap-4 md:gap-0 sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <a
+          <Link
             href="/"
             className="text-2xl font-bold text-[#2E2F1B] cursor-pointer hover:text-[#6B6C4F] transition"
-            onClick={() => {
-              const storedCart = localStorage.getItem('cart');
-              if (storedCart) {
-                setCart(JSON.parse(storedCart));
-              } else {
-                setCart([]);
-              }
-            }}
           >
             🛍️ StockNSELL
-          </a>
+          </Link>
         </div>
         <div className="flex gap-4 flex-wrap justify-center md:justify-start items-center">
-          <button
-            onClick={() => handleNavigate('/favoritos')}
+          <Link
+            href="/favorites"
             className="px-4 py-2 rounded-xl hover:bg-[#e0dbc7] transition font-medium"
           >
             Favoritos
-          </button>
-          <a
+          </Link>
+          <Link
             href="/account"
             className="px-4 py-2 rounded-xl bg-[#6B6C4F] text-white hover:bg-[#4C4C3A] transition font-medium"
           >
             Mi Cuenta
-          </a>
+          </Link>
           {rol === 'admin' && (
             <button
               onClick={handleGoAdmin}
@@ -111,7 +120,7 @@ export default function AccountPage() {
             </button>
           )}
           {/* Icono del carrito */}
-          <div className="relative flex items-center">
+          <Link href="/cart" className="relative flex items-center">
             <span className="text-2xl cursor-pointer" title="Carrito">
               🛒
             </span>
@@ -120,7 +129,7 @@ export default function AccountPage() {
                 {cart.length}
               </span>
             )}
-          </div>
+          </Link>
           {/* Botón de sesión */}
           {isLogged ? (
             <button
