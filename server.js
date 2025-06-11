@@ -74,7 +74,13 @@ app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login', session: true }),
   (req, res) => {
     const nombre = req.user.nombre;
-    res.redirect(`http://localhost:3000/?nombre=${encodeURIComponent(nombre)}`);
+    const email = req.user.email;
+    const rol = req.user.rol || 'user';
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign({ id: req.user._id, email, rol }, process.env.JWT_SECRET || 'secreto', { expiresIn: '1h' });
+    res.redirect(
+  `http://localhost:3000/account?nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&rol=${encodeURIComponent(rol)}&token=${encodeURIComponent(token)}`
+);
   }
 );
 

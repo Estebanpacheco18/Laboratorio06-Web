@@ -84,27 +84,47 @@ export default function StoreHomePage() {
   };
 
   const toggleFavorite = (product: any) => {
-  setFavorites(prev => {
-    let updated;
-    if (prev.includes(product._id)) {
-      updated = prev.filter(id => id !== product._id);
-    } else {
-      updated = [...prev, product._id];
-    }
-    localStorage.setItem('favorites', JSON.stringify(updated)); // <-- GUARDA AQUÍ
-    return updated;
-  });
-};
+    setFavorites(prev => {
+      let updated;
+      if (prev.includes(product._id)) {
+        updated = prev.filter(id => id !== product._id);
+      } else {
+        updated = [...prev, product._id];
+      }
+      localStorage.setItem('favorites', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
+  // GUARDAR TODOS LOS DATOS DE LA URL EN LOCALSTORAGE SI EXISTEN
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const nombreUrl = params.get('nombre');
+    const emailUrl = params.get('email');
+    const rolUrl = params.get('rol');
+    const tokenUrl = params.get('token');
+    let hasParams = false;
     if (nombreUrl) {
       setNombre(nombreUrl);
       localStorage.setItem('nombre', nombreUrl);
-      window.history.replaceState({}, document.title, window.location.pathname);
+      hasParams = true;
     } else {
       setNombre(localStorage.getItem('nombre'));
+    }
+    if (emailUrl) {
+      localStorage.setItem('email', emailUrl);
+      hasParams = true;
+    }
+    if (rolUrl) {
+      localStorage.setItem('rol', rolUrl);
+      hasParams = true;
+    }
+    if (tokenUrl) {
+      localStorage.setItem('token', tokenUrl);
+      hasParams = true;
+    }
+    if (hasParams) {
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
 

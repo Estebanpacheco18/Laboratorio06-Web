@@ -9,19 +9,31 @@ export default function AccountPage() {
   const [email, setEmail] = useState<string | null>(null);
   const [rol, setRol] = useState<string | null>(null);
   const [cart, setCart] = useState<any[]>([]);
-  const [isLogged, setIsLogged] = useState<boolean>(false);
   const router = useRouter();
 
-  // Leer datos y carrito al cargar la página
+  // Leer datos de Google en la URL y guardarlos en localStorage si existen
   useEffect(() => {
-    setNombre(localStorage.getItem('nombre'));
-    setEmail(localStorage.getItem('email'));
-    setRol(localStorage.getItem('rol'));
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const nombreUrl = params.get('nombre');
+      const emailUrl = params.get('email');
+      const rolUrl = params.get('rol');
+      const tokenUrl = params.get('token');
+      if (nombreUrl && emailUrl && rolUrl && tokenUrl) {
+        localStorage.setItem('nombre', nombreUrl);
+        localStorage.setItem('email', emailUrl);
+        localStorage.setItem('rol', rolUrl);
+        localStorage.setItem('token', tokenUrl);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      setNombre(localStorage.getItem('nombre'));
+      setEmail(localStorage.getItem('email'));
+      setRol(localStorage.getItem('rol'));
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      }
     }
-    setIsLogged(!!localStorage.getItem('token'));
   }, []);
 
   // Sincronizar carrito si cambia en otra pestaña o al volver a la página
@@ -33,22 +45,12 @@ export default function AccountPage() {
       } else {
         setCart([]);
       }
-      setIsLogged(!!localStorage.getItem('token'));
-    };
-    const handleFocus = () => {
-      const storedCart = localStorage.getItem('cart');
-      if (storedCart) {
-        setCart(JSON.parse(storedCart));
-      } else {
-        setCart([]);
-      }
-      setIsLogged(!!localStorage.getItem('token'));
     };
     window.addEventListener('storage', handleStorage);
-    window.addEventListener('focus', handleFocus);
+    window.addEventListener('focus', handleStorage);
     return () => {
       window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('focus', handleStorage);
     };
   }, []);
 
@@ -57,33 +59,11 @@ export default function AccountPage() {
     localStorage.removeItem('nombre');
     localStorage.removeItem('email');
     localStorage.removeItem('rol');
-    setIsLogged(false);
     router.push('/login');
   };
 
   const handleGoAdmin = () => {
     router.push('/admin');
-  };
-
-  const addToCart = (product: any) => {
-    setCart(prev => {
-      // Verifica si ya existe el producto en el carrito
-      const existing = prev.find((item: any) => item.productId === product._id);
-      let updatedCart;
-      if (existing) {
-        // Si existe, suma la cantidad
-        updatedCart = prev.map((item: any) =>
-          item.productId === product._id
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        );
-      } else {
-        // Si no existe, lo agrega
-        updatedCart = [...prev, { productId: product._id, cantidad: 1 }];
-      }
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      return updatedCart;
-    });
   };
 
   return (
@@ -131,7 +111,7 @@ export default function AccountPage() {
             )}
           </Link>
           {/* Botón de sesión */}
-          {isLogged ? (
+          {nombre ? (
             <button
               onClick={handleLogout}
               className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-800 transition font-medium"
@@ -155,17 +135,20 @@ export default function AccountPage() {
           <h1 className="text-4xl font-bold mb-6 text-[#4C4C3A] tracking-tight">👤 Mi Cuenta</h1>
           <div className="w-full space-y-4 text-center">
             <p className="text-lg">
-              <span className="font-semibold text-[#6B6C4F]">Nombre:</span> {nombre || "No disponible"}
+              <span className="font-semibold text-[#6B6C4F]">Nombre:</span>{" "}
+              {nombre || "No disponible"}
             </p>
             <p className="text-lg">
-              <span className="font-semibold text-[#6B6C4F]">Email:</span> {email || "No disponible"}
+              <span className="font-semibold text-[#6B6C4F]">Email:</span>{" "}
+              {email || "No disponible"}
             </p>
             <p className="text-lg">
-              <span className="font-semibold text-[#6B6C4F]">Rol:</span> {rol || "No disponible"}
+              <span className="font-semibold text-[#6B6C4F]">Rol:</span>{" "}
+              {rol || "No disponible"}
             </p>
           </div>
           <div className="mt-8 w-full flex flex-col gap-4">
-            {isLogged ? (
+            {nombre ? (
               <button
                 onClick={handleLogout}
                 className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full"
