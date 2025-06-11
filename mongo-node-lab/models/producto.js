@@ -13,7 +13,8 @@ const ProductoSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Proveedor'
   },
-  fechaCreacion: { type: Date, default: Date.now }
+  fechaCreacion: { type: Date, default: Date.now },
+  imagen : { type: String }
 });
 
 const Producto = mongoose.model('Producto', ProductoSchema);

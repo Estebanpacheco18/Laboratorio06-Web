@@ -214,7 +214,15 @@ export default function StoreHomePage() {
                 className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition group border border-gray-200"
               >
                 <div className="h-40 bg-gray-100 rounded mb-3 flex items-center justify-center overflow-hidden">
-                  <span className="text-gray-400 text-sm">Imagen</span>
+                  {product.imagen ? (
+                    <img
+                      src={`http://localhost:3001${product.imagen}`}
+                      alt={product.nombre}
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-gray-400 text-sm">Imagen</span>
+                  )}
                 </div>
                 <h4 className="text-lg font-semibold text-[#333]">{product.nombre}</h4>
                 <p className="text-sm text-[#6B6C4F]">{product.descripcion}</p>
