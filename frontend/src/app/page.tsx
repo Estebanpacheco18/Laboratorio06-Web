@@ -55,7 +55,11 @@ export default function StoreHomePage() {
   }, [cart]);
 
   const addToCart = (product: any) => {
-    setCart(prev => [...prev, product]);
+    const cartItem = {
+      productId: product._id,
+      cantidad: 1
+    };
+    setCart(prev => [...prev, cartItem]);
   };
 
   useEffect(() => {
@@ -104,7 +108,7 @@ export default function StoreHomePage() {
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur shadow-md px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-4">
           <Link
-            href="/"
+            href="/cart"
             className="text-2xl font-bold text-[#2E2F1B] cursor-pointer"
             onClick={() => {
               // Sincroniza el carrito manualmente al volver a la página principal
@@ -172,12 +176,12 @@ export default function StoreHomePage() {
             </li>
             <li><Link href="/account" className="hover:text-[#6B6C4F] transition">Mi Cuenta</Link></li>
             <li className="relative">
-              <span className="hover:text-[#6B6C4F] transition flex items-center cursor-pointer">
+              <Link href="/cart" className="hover:text-[#6B6C4F] transition flex items-center cursor-pointer">
                 🛒
                 {cart.length > 0 && (
                   <span className="ml-1 bg-[#6B6C4F] text-white rounded-full px-2 text-xs">{cart.length}</span>
                 )}
-              </span>
+              </Link>
             </li>
           </ul>
 
