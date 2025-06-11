@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
@@ -9,7 +9,15 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Verificar si hay sesión activa
+    if (localStorage.getItem('token')) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -52,12 +60,15 @@ export default function LoginPage() {
             required
             className="w-full p-3 border border-gray-300 rounded-xl mb-4"
           />
-          <button
-            type="submit"
-            className="w-full bg-[#6B6C4F] text-white py-3 rounded-xl hover:bg-[#4C4C3A] mb-4"
-          >
-            Iniciar sesión
-          </button>
+          {/* Renderizar el botón solo si no hay sesión activa */}
+          {!isLoggedIn && (
+            <button
+              type="submit"
+              className="w-full bg-[#6B6C4F] text-white py-3 rounded-xl hover:bg-[#4C4C3A] mb-4"
+            >
+              Iniciar sesión
+            </button>
+          )}
         </form>
         <button
           type="button"
