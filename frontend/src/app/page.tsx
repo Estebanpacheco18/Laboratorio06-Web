@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, Heart } from "lucide-react";
 
 export default function StoreHomePage() {
   const [search, setSearch] = useState("");
@@ -12,55 +12,89 @@ export default function StoreHomePage() {
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [categories] = useState(['Electrónica', 'Ropa', 'Hogar', 'Deportes']);
   const [nombre, setNombre] = useState<string | null>(null);
-  const [cart, setCart] = useState<any[]>([]);
+  const [cart, setCart] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const storedCart = localStorage.getItem('cart');
+      return storedCart ? JSON.parse(storedCart) : [];
+    }
+    return [];
+  });
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const storedFavs = localStorage.getItem('favorites');
+      return storedFavs ? JSON.parse(storedFavs) : [];
+    }
+    return [];
+  });
 
-  // Leer carrito al cargar la página
+  // Leer favoritos y carrito al cargar la página
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
-    }
+    if (storedCart) setCart(JSON.parse(storedCart));
+    const storedFavs = localStorage.getItem('favorites');
+    if (storedFavs) setFavorites(JSON.parse(storedFavs));
   }, []);
 
-  // Sincronizar carrito si cambia en otra pestaña o al volver a la página
+  // Sincronizar carrito y favoritos si cambia en otra pestaña o al volver a la página
   useEffect(() => {
     const handleStorage = () => {
       const storedCart = localStorage.getItem('cart');
-      if (storedCart) {
-        setCart(JSON.parse(storedCart));
-      } else {
-        setCart([]);
-      }
-    };
-    const handleFocus = () => {
-      const storedCart = localStorage.getItem('cart');
-      if (storedCart) {
-        setCart(JSON.parse(storedCart));
-      } else {
-        setCart([]);
-      }
+      if (storedCart) setCart(JSON.parse(storedCart));
+      else setCart([]);
+      const storedFavs = localStorage.getItem('favorites');
+      if (storedFavs) setFavorites(JSON.parse(storedFavs));
+      else setFavorites([]);
     };
     window.addEventListener('storage', handleStorage);
-    window.addEventListener('focus', handleFocus);
+    window.addEventListener('focus', handleStorage);
     return () => {
       window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('focus', handleStorage);
     };
   }, []);
 
-  // Guardar carrito cada vez que cambie
+  // Guardar carrito y favoritos cada vez que cambien
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
 
   const addToCart = (product: any) => {
-    const cartItem = {
-      productId: product._id,
-      cantidad: 1
-    };
-    setCart(prev => [...prev, cartItem]);
+    setCart(prev => {
+      // Busca si el producto ya está en el carrito
+      const existing = prev.find((item: any) => item.productId === product._id);
+      let updatedCart;
+      if (existing) {
+        // Si existe, suma la cantidad
+        updatedCart = prev.map((item: any) =>
+          item.productId === product._id
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        );
+      } else {
+        // Si no existe, lo agrega
+        updatedCart = [...prev, { productId: product._id, cantidad: 1 }];
+      }
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      return updatedCart;
+    });
   };
+
+  const toggleFavorite = (product: any) => {
+  setFavorites(prev => {
+    let updated;
+    if (prev.includes(product._id)) {
+      updated = prev.filter(id => id !== product._id);
+    } else {
+      updated = [...prev, product._id];
+    }
+    localStorage.setItem('favorites', JSON.stringify(updated)); // <-- GUARDA AQUÍ
+    return updated;
+  });
+};
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -110,15 +144,6 @@ export default function StoreHomePage() {
           <Link
             href="/cart"
             className="text-2xl font-bold text-[#2E2F1B] cursor-pointer"
-            onClick={() => {
-              // Sincroniza el carrito manualmente al volver a la página principal
-              const storedCart = localStorage.getItem('cart');
-              if (storedCart) {
-                setCart(JSON.parse(storedCart));
-              } else {
-                setCart([]);
-              }
-            }}
           >
             🛍️ StockNSELL
           </Link>
@@ -140,7 +165,11 @@ export default function StoreHomePage() {
 
         <div className="flex items-center gap-4">
           <ul className="hidden md:flex gap-6 font-medium">
-            <li><a href="#" className="hover:text-[#6B6C4F] transition">Favoritos</a></li>
+            <li>
+              <Link href="/favorites" className="hover:text-[#6B6C4F] transition">
+                Favoritos
+              </Link>
+            </li>
             <li className="relative">
               <button
                 onClick={() => setShowCategories(!showCategories)}
@@ -230,7 +259,19 @@ export default function StoreHomePage() {
                 </div>
                 <h4 className="text-lg font-semibold text-[#333]">{product.nombre}</h4>
                 <p className="text-sm text-[#6B6C4F]">{product.descripcion}</p>
-                <p className="mt-2 font-bold text-[#4C4C3A]">${product.precio}</p>
+                <p className="mt-2 font-bold text-[#4C4C3A] flex items-center justify-between">
+                  ${product.precio}
+                  <Heart
+                    size={20}
+                    fill={favorites.includes(product._id) ? "currentColor" : "none"}
+                    className={`ml-2 cursor-pointer transition ${
+                      favorites.includes(product._id)
+                        ? "text-red-500"
+                        : "text-[#6B6C4F] hover:text-red-500"
+                    }`}
+                    onClick={() => toggleFavorite(product)}
+                  />
+                </p>
                 <button
                   className="mt-4 w-full py-2 bg-[#2E2F1B] text-white rounded-full hover:bg-[#6B6C4F] transition"
                   onClick={() => addToCart(product)}

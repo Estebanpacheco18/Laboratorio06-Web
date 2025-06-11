@@ -149,40 +149,54 @@ export default function CartPage() {
     return (
         <main className="min-h-screen bg-[#F5F0E6] text-[#4C4C3A] font-sans">
             {/* NAVBAR */}
-            <nav className="flex flex-col md:flex-row justify-between items-center px-6 py-4 bg-white shadow-md gap-4 md:gap-0 rounded-b-xl">
+            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur shadow-md px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="flex items-center gap-4">
-                    <a href="/" className="text-2xl font-bold tracking-tight text-[#4C4C3A]">🛍️ StockNSELL</a>
-                    <span className="ml-4 text-lg text-[#6B6C4F]">
+                    <a href="/" className="text-2xl font-bold text-[#2E2F1B] cursor-pointer">
+                        🛍️ StockNSELL
+                    </a>
+                    <span className="text-lg text-[#555]">
                         {userName ? `Hola, ${userName}!` : "Hola invitado!"}
                     </span>
                 </div>
-
-                <div className="flex items-center bg-[#F0EBE0] px-3 py-1 rounded-xl w-full md:w-1/3 shadow-inner">
-                    <Search className="text-[#6B6C4F] mr-2" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Buscar productos..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full bg-transparent outline-none text-sm placeholder-gray-500"
-                    />
+                <div className="flex items-center gap-4">
+                    <ul className="hidden md:flex gap-6 font-medium">
+                        <li>
+                            <a href="/favorites" className="hover:text-[#6B6C4F] transition">
+                                Favoritos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/account" className="hover:text-[#6B6C4F] transition">
+                                Mi Cuenta
+                            </a>
+                        </li>
+                        <li className="relative">
+                            <a href="/cart" className="hover:text-[#6B6C4F] transition flex items-center cursor-pointer">
+                                🛒
+                                {cartItems.length > 0 && (
+                                    <span className="ml-1 bg-[#6B6C4F] text-white rounded-full px-2 text-xs">
+                                        {cartItems.length}
+                                    </span>
+                                )}
+                            </a>
+                        </li>
+                    </ul>
+                    {userName ? (
+                        <button
+                            onClick={handleLogout}
+                            className="bg-[#6B6C4F] text-white px-4 py-2 rounded-full hover:bg-[#4C4C3A] transition"
+                        >
+                            Cerrar sesión
+                        </button>
+                    ) : (
+                        <a
+                            href="/login"
+                            className="bg-[#6B6C4F] text-white px-4 py-2 rounded-full hover:bg-[#4C4C3A] transition"
+                        >
+                            Iniciar sesión
+                        </a>
+                    )}
                 </div>
-
-                {userName ? (
-                    <button
-                        onClick={handleLogout}
-                        className="bg-[#6B6C4F] text-white px-4 py-2 rounded-xl hover:bg-[#4C4C3A] transition shadow-md"
-                    >
-                        Cerrar sesión
-                    </button>
-                ) : (
-                    <a
-                        href="/login"
-                        className="bg-[#6B6C4F] text-white px-4 py-2 rounded-xl hover:bg-[#4C4C3A] transition shadow-md"
-                    >
-                        Iniciar sesión
-                    </a>
-                )}
             </nav>
 
             {/* CONTENIDO DEL CARRITO */}
