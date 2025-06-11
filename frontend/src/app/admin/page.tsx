@@ -9,11 +9,13 @@ export default function AdminProductsPage() {
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [stock, setStock] = useState('');
   const [msg, setMsg] = useState('');
   const [editId, setEditId] = useState<string | null>(null);
   const [editNombre, setEditNombre] = useState('');
   const [editPrecio, setEditPrecio] = useState('');
   const [editDescripcion, setEditDescripcion] = useState('');
+  const [editStock, setEditStock] = useState('');
   const router = useRouter();
 
   // Cargar productos
@@ -37,7 +39,7 @@ export default function AdminProductsPage() {
     const token = localStorage.getItem('token');
     try {
       await axios.post('http://localhost:3001/api/admin/products', {
-        nombre, precio, descripcion
+        nombre, precio, descripcion, stock
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -68,6 +70,7 @@ export default function AdminProductsPage() {
     setEditNombre(p.nombre);
     setEditPrecio(p.precio);
     setEditDescripcion(p.descripcion);
+    setEditStock(p.stock);
   };
 
   // Guardar edición
@@ -78,7 +81,8 @@ export default function AdminProductsPage() {
       await axios.put(`http://localhost:3001/api/admin/products/${editId}`, {
         nombre: editNombre,
         precio: editPrecio,
-        descripcion: editDescripcion
+        descripcion: editDescripcion,
+        stock: editStock
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -132,6 +136,7 @@ export default function AdminProductsPage() {
         <form onSubmit={handleCreate} className="mb-6 flex gap-2">
           <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre" className="border p-2 rounded-xl" required />
           <input value={precio} onChange={e => setPrecio(e.target.value)} placeholder="Precio" type="number" className="border p-2 rounded-xl" required />
+          <input value={stock} onChange={e => setStock(e.target.value)} placeholder="Stock" type="number" className="border p-2 rounded-xl" required />
           <input value={descripcion} onChange={e => setDescripcion(e.target.value)} placeholder="Descripción" className="border p-2 rounded-xl" />
           <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-800 transition">Crear</button>
         </form>
@@ -141,6 +146,7 @@ export default function AdminProductsPage() {
             <tr>
               <th className="border px-2 py-2">Nombre</th>
               <th className="border px-2 py-2">Precio</th>
+              <th className="border px-2 py-2">Stock</th>
               <th className="border px-2 py-2">Descripción</th>
               <th className="border px-2 py-2">Acciones</th>
             </tr>
@@ -160,6 +166,13 @@ export default function AdminProductsPage() {
                     <input value={editPrecio} onChange={e => setEditPrecio(e.target.value)} className="border p-1 rounded" type="number" />
                   ) : (
                     p.precio
+                  )}
+                </td>
+                <td className="border px-2 py-2">
+                  {editId === p._id ? (
+                    <input value={editStock} onChange={e => setEditStock(e.target.value)} className="border p-1 rounded" type="number" />
+                  ) : (
+                    p.stock
                   )}
                 </td>
                 <td className="border px-2 py-2">
