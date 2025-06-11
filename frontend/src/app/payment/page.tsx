@@ -104,17 +104,6 @@ export default function PaymentPage() {
           <span className="text-lg text-[#555]">{userName ? `Hola, ${userName}!` : "Hola invitado!"}</span>
         </div>
 
-        <div className="flex items-center bg-[#EFEDE8] px-3 py-1 rounded-full w-full md:w-1/3">
-          <Search className="text-[#6B6C4F] mr-2" size={20} />
-          <input
-            type="text"
-            placeholder="Buscar productos..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent outline-none text-sm text-[#2E2F1B]"
-          />
-        </div>
-
         <div className="flex items-center gap-4">
           <ul className="hidden md:flex gap-6 font-medium text-[#2E2F1B]">
             <li>
