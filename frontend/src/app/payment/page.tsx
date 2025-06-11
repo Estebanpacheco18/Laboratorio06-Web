@@ -4,6 +4,12 @@ import { useEffect, useState } from "react"
 import { Search } from "lucide-react"
 
 export default function PaymentPage() {
+  const [totalAmount, setTotalAmount] = useState(0);
+  
+  useEffect(() => {
+    const amount = parseFloat(localStorage.getItem('totalAmount') || '0');
+    setTotalAmount(amount);
+  }, []);
   const [cardNumber, setCardNumber] = useState("")
   const [cardHolder, setCardHolder] = useState("")
   const [expiryDate, setExpiryDate] = useState("")
@@ -92,6 +98,7 @@ export default function PaymentPage() {
       {/* PAGO */}
       <section className="flex flex-col items-center justify-center py-16 px-4">
         <h2 className="text-3xl font-bold text-[#2E2F1B] mb-8">Método de Pago</h2>
+        <div className="text-xl font-semibold mb-8">Total a pagar: ${totalAmount.toFixed(2)}</div>
 
         <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-200 space-y-6">
           {/* Simulación de tarjeta */}
