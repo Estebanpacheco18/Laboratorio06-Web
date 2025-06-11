@@ -2,17 +2,50 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import a from "next/link";
 
 export default function AccountPage() {
   const [nombre, setNombre] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [rol, setRol] = useState<string | null>(null);
+  const [cart, setCart] = useState<any[]>([]);
   const router = useRouter();
 
+  // Leer datos y carrito al cargar la página
   useEffect(() => {
     setNombre(localStorage.getItem('nombre'));
     setEmail(localStorage.getItem('email'));
     setRol(localStorage.getItem('rol'));
+    const storedCart = localStorage.getItem('cart');
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
+    }
+  }, []);
+
+  // Sincronizar carrito si cambia en otra pestaña o al volver a la página
+  useEffect(() => {
+    const handleStorage = () => {
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      } else {
+        setCart([]);
+      }
+    };
+    const handleFocus = () => {
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      } else {
+        setCart([]);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -36,26 +69,34 @@ export default function AccountPage() {
       {/* NAVBAR */}
       <nav className="flex flex-col md:flex-row justify-between items-center px-6 py-4 bg-white shadow-md gap-4 md:gap-0 sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <h1
-            className="text-2xl font-bold tracking-tight cursor-pointer hover:text-[#6B6C4F] transition"
-            onClick={() => handleNavigate('/')}
+          <a
+            href="/"
+            className="text-2xl font-bold text-[#2E2F1B] cursor-pointer hover:text-[#6B6C4F] transition"
+            onClick={() => {
+              const storedCart = localStorage.getItem('cart');
+              if (storedCart) {
+                setCart(JSON.parse(storedCart));
+              } else {
+                setCart([]);
+              }
+            }}
           >
-            🛍️ <span className="text-[#6B6C4F]">StockNSELL</span>
-          </h1>
+            🛍️ StockNSELL
+          </a>
         </div>
-        <div className="flex gap-4 flex-wrap justify-center md:justify-start">
+        <div className="flex gap-4 flex-wrap justify-center md:justify-start items-center">
           <button
             onClick={() => handleNavigate('/favoritos')}
             className="px-4 py-2 rounded-xl hover:bg-[#e0dbc7] transition font-medium"
           >
             Favoritos
           </button>
-          <button
-            onClick={() => handleNavigate('/account')}
+          <a
+            href="/account"
             className="px-4 py-2 rounded-xl bg-[#6B6C4F] text-white hover:bg-[#4C4C3A] transition font-medium"
           >
             Mi Cuenta
-          </button>
+          </a>
           {rol === 'admin' && (
             <button
               onClick={handleGoAdmin}
@@ -64,6 +105,17 @@ export default function AccountPage() {
               Panel Admin
             </button>
           )}
+          {/* Icono del carrito */}
+          <div className="relative flex items-center">
+            <span className="text-2xl cursor-pointer" title="Carrito">
+              🛒
+            </span>
+            {cart.length > 0 && (
+              <span className="ml-1 bg-[#6B6C4F] text-white rounded-full px-2 text-xs absolute -top-2 -right-3">
+                {cart.length}
+              </span>
+            )}
+          </div>
           <button
             onClick={handleLogout}
             className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-800 transition font-medium"
