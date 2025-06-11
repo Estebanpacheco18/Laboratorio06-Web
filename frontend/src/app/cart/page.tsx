@@ -23,6 +23,8 @@ export default function CartPage() {
     useEffect(() => {
         setUserName(localStorage.getItem('nombre'));
         const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+        console.log('--- Carga Inicial del Carrito ---');
+        console.log('Carrito guardado en localStorage:', storedCart);
 
         const fetchProductDetails = async () => {
             // Promesa.all para obtener los detalles de todos los productos en paralelo
@@ -31,6 +33,7 @@ export default function CartPage() {
                     try {
                         // Utiliza 'cartItem.productId' para obtener el ID del producto correctamente
                         const response = await axios.get(`http://localhost:3001/api/products/${cartItem.productId}`);
+                        console.log(`Detalles obtenidos para el ID de producto ${cartItem.productId}:`, response.data);
                         // Combina los detalles del producto con la cantidad guardada en localStorage
                         return {
                             ...response.data, // Contiene _id, nombre, precio, descripción, etc.
@@ -45,7 +48,24 @@ export default function CartPage() {
 
             // Filtra los productos que se cargaron correctamente
             const validItems = itemsWithDetails.filter((item) => item !== null) as CartItem[];
-            setCartItems(validItems);
+
+            // Agrupar productos duplicados y sumar sus cantidades
+            const aggregatedItemsMap = new Map<string, CartItem>();
+            validItems.forEach(item => {
+                if (aggregatedItemsMap.has(item._id)) {
+                    // Si el producto ya existe en el mapa, suma la cantidad
+                    const existingItem = aggregatedItemsMap.get(item._id)!;
+                    existingItem.cantidad += item.cantidad;
+                    aggregatedItemsMap.set(item._id, existingItem);
+                } else {
+                    // Si es un producto nuevo, agrégalo al mapa
+                    aggregatedItemsMap.set(item._id, { ...item }); // Clona para evitar mutación directa
+                }
+            });
+            const finalCartItems = Array.from(aggregatedItemsMap.values());
+
+            setCartItems(finalCartItems);
+            console.log('Items del carrito cargados, agregados y establecidos:', finalCartItems);
         };
 
         fetchProductDetails();
@@ -55,24 +75,36 @@ export default function CartPage() {
     useEffect(() => {
         const newTotal = cartItems.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
         setTotal(newTotal);
+        console.log('Total recalculado:', newTotal);
     }, [cartItems]); // Se ejecuta cada vez que 'cartItems' cambia
 
     // Maneja el cambio de cantidad de un producto en el carrito
     const handleQuantityChange = (productId: string, newQuantity: number) => {
-        if (newQuantity < 1) return; // Evita cantidades negativas o cero
+        if (newQuantity < 1) {
+            console.log('Intentado establecer una cantidad menor a 1, operación cancelada.');
+            return; // Evita cantidades negativas o cero
+        }
+
+        console.log('--- handleQuantityChange (Cambio de Cantidad) ---');
+        console.log('ID del producto a modificar:', productId, 'Nueva Cantidad:', newQuantity);
 
         setCartItems(prevItems => {
+            console.log('Estado previo del carrito (antes de la actualización):', prevItems); // Muestra el estado antes del map
+
             const updatedItems = prevItems.map(item =>
                 item._id === productId
                     ? { ...item, cantidad: newQuantity }
                     : item
             );
+            console.log('Estado del carrito actualizado (después del map):', updatedItems); // Muestra el item con la cantidad modificada
 
             // Actualiza localStorage con las nuevas cantidades
+            // Asegúrate de que los datos en localStorage sean únicos por productId
             const cartForLocalStorage = updatedItems.map(item => ({
                 productId: item._id,
                 cantidad: item.cantidad
             }));
+            console.log('Datos para localStorage:', cartForLocalStorage);
             localStorage.setItem('cart', JSON.stringify(cartForLocalStorage));
             return updatedItems;
         });
@@ -80,14 +112,21 @@ export default function CartPage() {
 
     // Maneja la eliminación de un producto del carrito
     const handleRemoveItem = (productId: string) => {
+        console.log('--- handleRemoveItem (Eliminar Ítem) ---');
+        console.log('ID del producto a eliminar:', productId);
+
         setCartItems(prevItems => {
+            console.log('Estado previo del carrito (antes de la eliminación):', prevItems);
+
             const updatedItems = prevItems.filter(item => item._id !== productId);
+            console.log('Estado del carrito actualizado (después del filter):', updatedItems);
 
             // Actualiza localStorage después de eliminar el producto
             const cartForLocalStorage = updatedItems.map(item => ({
                 productId: item._id,
                 cantidad: item.cantidad
             }));
+            console.log('Datos para localStorage (después de eliminar):', cartForLocalStorage);
             localStorage.setItem('cart', JSON.stringify(cartForLocalStorage));
             return updatedItems;
         });
