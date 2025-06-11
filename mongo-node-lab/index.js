@@ -7,12 +7,12 @@ async function main() {
 
     const { Categoria, Proveedor, Producto, User, Pedido, Inventario, Administrador } = models;
     
-const bcrypt = require('bcryptjs');
-const hashedPassword = await bcrypt.hash('admin123', 10);
-const admin = await Administrador.create({
-  nombre: 'Admin Pacheco',
-  email: 'adminesteban@gmail.com',
-  password: hashedPassword
+  const bcrypt = require('bcryptjs');
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const admin = await Administrador.create({
+    nombre: 'Admin Nadia',
+    email: 'adminalvarez@gmail.com',
+    password: hashedPassword
 });
 
     console.log("✅ Datos insertados correctamente");

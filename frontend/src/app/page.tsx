@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Link from "next/link";
 import { Search, ChevronDown } from "lucide-react";
 
 export default function StoreHomePage() {
@@ -11,6 +12,51 @@ export default function StoreHomePage() {
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [categories] = useState(['Electrónica', 'Ropa', 'Hogar', 'Deportes']);
   const [nombre, setNombre] = useState<string | null>(null);
+  const [cart, setCart] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Leer carrito al cargar la página
+  useEffect(() => {
+    const storedCart = localStorage.getItem('cart');
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));
+    }
+  }, []);
+
+  // Sincronizar carrito si cambia en otra pestaña o al volver a la página
+  useEffect(() => {
+    const handleStorage = () => {
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      } else {
+        setCart([]);
+      }
+    };
+    const handleFocus = () => {
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      } else {
+        setCart([]);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  // Guardar carrito cada vez que cambie
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
+  const addToCart = (product: any) => {
+    setCart(prev => [...prev, product]);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -39,10 +85,11 @@ export default function StoreHomePage() {
   useEffect(() => {
     setFilteredProducts(
       products.filter(product =>
-        product.nombre.toLowerCase().includes(search.toLowerCase())
+        product.nombre.toLowerCase().includes(search.toLowerCase()) &&
+        (!selectedCategory || (product.categoria === selectedCategory))
       )
     );
-  }, [search, products]);
+  }, [search, products, selectedCategory]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -56,7 +103,21 @@ export default function StoreHomePage() {
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur shadow-md px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold text-[#2E2F1B]">🛍️ StockNSELL</h1>
+          <Link
+            href="/"
+            className="text-2xl font-bold text-[#2E2F1B] cursor-pointer"
+            onClick={() => {
+              // Sincroniza el carrito manualmente al volver a la página principal
+              const storedCart = localStorage.getItem('cart');
+              if (storedCart) {
+                setCart(JSON.parse(storedCart));
+              } else {
+                setCart([]);
+              }
+            }}
+          >
+            🛍️ StockNSELL
+          </Link>
           <span className="text-lg text-[#555]">
             {nombre ? `Hola, ${nombre}!` : "Hola invitado!"}
           </span>
@@ -75,7 +136,6 @@ export default function StoreHomePage() {
 
         <div className="flex items-center gap-4">
           <ul className="hidden md:flex gap-6 font-medium">
-            <li><a href="#" className="hover:text-[#6B6C4F] transition">Inicio</a></li>
             <li><a href="#" className="hover:text-[#6B6C4F] transition">Favoritos</a></li>
             <li className="relative">
               <button
@@ -86,12 +146,21 @@ export default function StoreHomePage() {
               </button>
               {showCategories && (
                 <ul className="absolute top-full mt-2 bg-white border rounded-lg shadow-md w-40 z-50 ring-1 ring-gray-200 overflow-hidden">
+                  <li
+                    className={`px-4 py-2 hover:bg-[#F0EBE0] cursor-pointer text-sm transition ${selectedCategory === null ? 'font-bold text-[#6B6C4F]' : ''}`}
+                    onClick={() => {
+                      setSelectedCategory(null);
+                      setShowCategories(false);
+                    }}
+                  >
+                    Todas las categorías
+                  </li>
                   {categories.map((cat, i) => (
                     <li
                       key={i}
-                      className="px-4 py-2 hover:bg-[#F0EBE0] cursor-pointer text-sm transition"
+                      className={`px-4 py-2 hover:bg-[#F0EBE0] cursor-pointer text-sm transition ${selectedCategory === cat ? 'font-bold text-[#6B6C4F]' : ''}`}
                       onClick={() => {
-                        alert(`Categoría seleccionada: ${cat}`);
+                        setSelectedCategory(cat);
                         setShowCategories(false);
                       }}
                     >
@@ -101,7 +170,15 @@ export default function StoreHomePage() {
                 </ul>
               )}
             </li>
-            <li><a href="/account" className="hover:text-[#6B6C4F] transition">Mi Cuenta</a></li>
+            <li><Link href="/account" className="hover:text-[#6B6C4F] transition">Mi Cuenta</Link></li>
+            <li className="relative">
+              <span className="hover:text-[#6B6C4F] transition flex items-center cursor-pointer">
+                🛒
+                {cart.length > 0 && (
+                  <span className="ml-1 bg-[#6B6C4F] text-white rounded-full px-2 text-xs">{cart.length}</span>
+                )}
+              </span>
+            </li>
           </ul>
 
           {nombre ? (
@@ -112,19 +189,21 @@ export default function StoreHomePage() {
               Cerrar sesión
             </button>
           ) : (
-            <a
+            <Link
               href="/login"
               className="bg-[#6B6C4F] text-white px-4 py-2 rounded-full hover:bg-[#4C4C3A] transition"
             >
               Iniciar sesión
-            </a>
+            </Link>
           )}
         </div>
       </nav>
 
       {/* PRODUCTOS */}
       <section className="py-12 px-6">
-        <h3 className="text-2xl font-semibold mb-6 text-[#2E2F1B]">Productos</h3>
+        <h3 className="text-2xl font-semibold mb-6 text-[#2E2F1B]">
+          Productos {selectedCategory && <span className="text-base text-[#6B6C4F]">/ {selectedCategory}</span>}
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredProducts.length === 0 ? (
             <p className="col-span-full text-center text-gray-500">No hay productos para mostrar.</p>
@@ -140,8 +219,11 @@ export default function StoreHomePage() {
                 <h4 className="text-lg font-semibold text-[#333]">{product.nombre}</h4>
                 <p className="text-sm text-[#6B6C4F]">{product.descripcion}</p>
                 <p className="mt-2 font-bold text-[#4C4C3A]">${product.precio}</p>
-                <button className="mt-4 w-full py-2 bg-[#6B6C4F] text-white rounded-full hover:bg-[#4C4C3A] transition">
-                  Ver más
+                <button
+                  className="mt-4 w-full py-2 bg-[#2E2F1B] text-white rounded-full hover:bg-[#6B6C4F] transition"
+                  onClick={() => addToCart(product)}
+                >
+                  Añadir al carrito
                 </button>
               </div>
             ))
