@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 import axios from 'axios';
 
+
 interface CartItem {
     _id: string; // ID del producto de la base de datos
     nombre: string;
@@ -18,6 +19,7 @@ export default function CartPage() {
     const [userName, setUserName] = useState<string | null>(null);
     const [search, setSearch] = useState('');
     const [total, setTotal] = useState(0);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     // Efecto para cargar los ítems del carrito y el nombre de usuario al inicio
     useEffect(() => {
@@ -32,7 +34,7 @@ export default function CartPage() {
                 storedCart.map(async (cartItem: { productId: string; cantidad: number }) => {
                     try {
                         // Utiliza 'cartItem.productId' para obtener el ID del producto correctamente
-                        const response = await axios.get(`http://localhost:3001/api/products/${cartItem.productId}`);
+                        const response = await axios.get(`${apiUrl}/api/products/${cartItem.productId}`);
                         console.log(`Detalles obtenidos para el ID de producto ${cartItem.productId}:`, response.data);
                         // Combina los detalles del producto con la cantidad guardada en localStorage
                         return {

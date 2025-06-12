@@ -30,6 +30,7 @@ export default function AdminProductsPage() {
   const [imagenUrl, setImagenUrl] = useState<string>("");
   const [editImagenFile, setEditImagenFile] = useState<File | null>(null);
   const [editImagenUrl, setEditImagenUrl] = useState<string>("");
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const router = useRouter();
 
@@ -41,12 +42,12 @@ export default function AdminProductsPage() {
       router.push('/'); // Redirige si no es admin
       return;
     }
-    axios.get('http://localhost:3001/api/admin/products', {
+    axios.get(`${apiUrl}/api/admin/products`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setProducts(res.data))
       .catch(() => setProducts([]));
-  }, [router]);
+  }, [router, apiUrl]);
 
   // Manejar cambio de imagen al crear
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +57,7 @@ export default function AdminProductsPage() {
       const formData = new FormData();
       formData.append('imagen', file);
       try {
-        const res = await axios.post('http://localhost:3001/api/upload', formData, {
+        const res = await axios.post(`${apiUrl}/api/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         setImagenUrl(res.data.url);
@@ -74,7 +75,7 @@ export default function AdminProductsPage() {
       const formData = new FormData();
       formData.append('imagen', file);
       try {
-        const res = await axios.post('http://localhost:3001/api/upload', formData, {
+        const res = await axios.post(`${apiUrl}/api/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         setEditImagenUrl(res.data.url);
@@ -89,7 +90,7 @@ export default function AdminProductsPage() {
     e.preventDefault();
     const token = localStorage.getItem('token');
     try {
-      await axios.post('http://localhost:3001/api/admin/products', {
+      await axios.post(`${apiUrl}/api/admin/products`, {
         nombre, precio, descripcion, stock, imagen: imagenUrl
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -105,7 +106,7 @@ export default function AdminProductsPage() {
   const handleDelete = async (id: string) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:3001/api/admin/products/${id}`, {
+      await axios.delete(`${apiUrl}/api/admin/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMsg('Producto eliminado');
@@ -133,7 +134,7 @@ export default function AdminProductsPage() {
     // Busca el producto original para obtener la imagen anterior si no se cambia
     const productoOriginal = products.find((prod) => prod._id === editId);
     try {
-      await axios.put(`http://localhost:3001/api/admin/products/${editId}`, {
+      await axios.put(`${apiUrl}/api/admin/products/${editId}`, {
         nombre: editNombre,
         precio: editPrecio,
         descripcion: editDescripcion,
@@ -223,7 +224,7 @@ export default function AdminProductsPage() {
                       />
                       {(editImagenUrl || p.imagen) && (
                         <img
-                          src={`http://localhost:3001${editImagenUrl || p.imagen}`}
+                          src={`${apiUrl}${editImagenUrl || p.imagen}`}
                           alt={p.nombre}
                           className="h-16 w-16 object-cover rounded mt-1"
                         />
@@ -232,7 +233,7 @@ export default function AdminProductsPage() {
                   ) : (
                     p.imagen && (
                       <img
-                        src={`http://localhost:3001${p.imagen}`}
+                        src={`${apiUrl}${p.imagen}`}
                         alt={p.nombre}
                         className="h-16 w-16 object-cover rounded"
                       />

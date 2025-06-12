@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function RegisterPage() {
   const [nombre, setNombre] = useState('');
@@ -12,22 +13,22 @@ export default function RegisterPage() {
   const [msg, setMsg] = useState('');
   const router = useRouter();
 
-  const handleRegister = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setMsg('');
-    try {
-      const res = await axios.post('http://localhost:3001/api/register', { nombre, email, password });
-      setMsg('Registro exitoso. Redirigiendo...');
-      localStorage.setItem('nombre', res.data.user.nombre);
-      setTimeout(() => router.push('/login'), 1500);
-    } catch (err: any) {
-      setMsg(err.response?.data?.error || 'Error al registrar');
-    }
-  };
+const handleRegister = async (e?: React.FormEvent) => {
+  if (e) e.preventDefault();
+  setMsg('');
+  try {
+    const res = await axios.post(`${apiUrl}/api/register`, { nombre, email, password });
+    setMsg('Registro exitoso. Redirigiendo...');
+    localStorage.setItem('nombre', res.data.user.nombre);
+    setTimeout(() => router.push('/login'), 1500);
+  } catch (err: any) {
+    setMsg(err.response?.data?.error || 'Error al registrar');
+  }
+};
 
-  const handleGoogle = () => {
-    window.location.href = 'http://localhost:3001/auth/google';
-  };
+const handleGoogle = () => {
+  window.location.href = `${apiUrl}/auth/google`;
+};
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-[#F5F0E6] text-[#4C4C3A] px-4">

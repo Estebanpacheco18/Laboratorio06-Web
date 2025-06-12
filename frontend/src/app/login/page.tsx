@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,25 +21,25 @@ export default function LoginPage() {
     }
   }, []);
 
-  const handleLogin = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setMsg('');
-    try {
-      const res = await axios.post('http://localhost:3001/api/login', { email, password });
-      setMsg('Login exitoso. Redirigiendo...');
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('nombre', res.data.user.nombre);
-      localStorage.setItem('email', res.data.user.email);
-      localStorage.setItem('rol', res.data.user.rol);
-      setTimeout(() => router.push('/'), 1500);
-    } catch (err: any) {
-      setMsg(err.response?.data?.error || 'Error al iniciar sesión');
-    }
-  };
+const handleLogin = async (e?: React.FormEvent) => {
+  if (e) e.preventDefault();
+  setMsg('');
+  try {
+    const res = await axios.post(`${apiUrl}/api/login`, { email, password });
+    setMsg('Login exitoso. Redirigiendo...');
+    localStorage.setItem('token', res.data.token);
+    localStorage.setItem('nombre', res.data.user.nombre);
+    localStorage.setItem('email', res.data.user.email);
+    localStorage.setItem('rol', res.data.user.rol);
+    setTimeout(() => router.push('/'), 1500);
+  } catch (err: any) {
+    setMsg(err.response?.data?.error || 'Error al iniciar sesión');
+  }
+};
 
-  const handleGoogle = () => {
-    window.location.href = 'http://localhost:3001/auth/google';
-  };
+const handleGoogle = () => {
+  window.location.href = `${apiUrl}/auth/google`;
+};
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-[#F5F0E6] text-[#4C4C3A] px-4">

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { Search, ChevronDown, Heart } from "lucide-react";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 
 export default function StoreHomePage() {
   const [search, setSearch] = useState("");
@@ -128,17 +130,17 @@ export default function StoreHomePage() {
     }
   }, []);
 
-  useEffect(() => {
-    axios.get('http://localhost:3001/api/products')
-      .then(res => {
-        setProducts(res.data);
-        setFilteredProducts(res.data);
-      })
-      .catch(() => {
-        setProducts([]);
-        setFilteredProducts([]);
-      });
-  }, []);
+useEffect(() => {
+  axios.get(`${apiUrl}/api/products`)
+    .then(res => {
+      setProducts(res.data);
+      setFilteredProducts(res.data);
+    })
+    .catch(() => {
+      setProducts([]);
+      setFilteredProducts([]);
+    });
+}, []);
 
   useEffect(() => {
     setFilteredProducts(
@@ -268,11 +270,11 @@ export default function StoreHomePage() {
               >
                 <div className="h-40 bg-gray-100 rounded mb-3 flex items-center justify-center overflow-hidden">
                   {product.imagen ? (
-                    <img
-                      src={`http://localhost:3001${product.imagen}`}
-                      alt={product.nombre}
-                      className="h-full w-full object-contain"
-                    />
+<img
+  src={`${process.env.NEXT_PUBLIC_API_URL}${product.imagen}`}
+  alt={product.nombre}
+  className="h-full w-full object-contain"
+/>
                   ) : (
                     <span className="text-gray-400 text-sm">Imagen</span>
                   )}

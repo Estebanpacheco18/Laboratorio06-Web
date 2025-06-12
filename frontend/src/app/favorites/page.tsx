@@ -13,6 +13,8 @@ export default function FavoritesPage() {
   const [showCategories, setShowCategories] = useState(false);
   const [categories] = useState(['Electrónica', 'Ropa', 'Hogar', 'Deportes']);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
 
   // Cargar favoritos, carrito y nombre al iniciar
   useEffect(() => {
@@ -42,11 +44,11 @@ export default function FavoritesPage() {
   }, []);
 
   // Cargar todos los productos para filtrar los favoritos
-  useEffect(() => {
-    axios.get('http://localhost:3001/api/products')
-      .then(res => setProducts(res.data))
-      .catch(() => setProducts([]));
-  }, []);
+useEffect(() => {
+  axios.get(`${apiUrl}/api/products`)
+    .then(res => setProducts(res.data))
+    .catch(() => setProducts([]));
+}, []);
 
   // Filtrar productos favoritos
   const favoriteProducts = products.filter(p => favorites.includes(p._id));
@@ -189,11 +191,11 @@ export default function FavoritesPage() {
                 >
                   <div className="h-40 bg-gray-100 rounded mb-3 flex items-center justify-center overflow-hidden">
                     {product.imagen ? (
-                      <img
-                        src={`http://localhost:3001${product.imagen}`}
-                        alt={product.nombre}
-                        className="h-full w-full object-contain"
-                      />
+<img
+  src={`${process.env.NEXT_PUBLIC_API_URL}${product.imagen}`}
+  alt={product.nombre}
+  className="h-full w-full object-contain"
+/>
                     ) : (
                       <span className="text-gray-400 text-sm">Imagen</span>
                     )}
