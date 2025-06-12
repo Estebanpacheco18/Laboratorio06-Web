@@ -11,16 +11,17 @@ export default function ProductPage() {
   const router = useRouter();
   const params = useParams();
 
-  // Efecto para cargar los detalles del producto y el nombre de usuario
-  useEffect(() => {
-    const productId = params.id;
-    if (productId) {
-      axios.get(`http://localhost:3001/api/products/${productId}`)
-        .then(res => setProduct(res.data))
-        .catch(error => console.error('Error al cargar el producto:', error));
-    }
-    setNombre(localStorage.getItem('nombre'));
-  }, [params.id]); // Se ejecuta cuando el ID del producto en los parámetros cambia
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+useEffect(() => {
+  const productId = params.id;
+  if (productId) {
+    axios.get(`${apiUrl}/api/products/${productId}`)
+      .then(res => setProduct(res.data))
+      .catch(error => console.error('Error al cargar el producto:', error));
+  }
+  setNombre(localStorage.getItem('nombre'));
+}, [params.id]);
 
   // Maneja el cierre de sesión
   const handleLogout = () => {
