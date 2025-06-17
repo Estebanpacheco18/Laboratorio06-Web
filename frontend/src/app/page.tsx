@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { Search, ChevronDown, Heart } from "lucide-react";
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
 
 export default function StoreHomePage() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [search, setSearch] = useState("");
   const [showCategories, setShowCategories] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
