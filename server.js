@@ -18,33 +18,34 @@ const path = require('path');
 
 const app = express();
 
-// Seguridad y CORS
+// Configuración de seguridad y CORS
 app.use(helmet());
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://laboratorio06-web-ghpb.vercel.app', // de Vercel
+  'https://laboratorio06-web-ghpb.vercel.app'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Permite solicitudes sin origen (como Postman) o desde los orígenes permitidos
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('No permitido por CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 
-// Passport Google
+// Configuración de Passport Google
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/auth/google/callback'
+  callbackURL: process.env.GOOGLE_CALLBACK_URL || 'https://laboratorio06-web-backend.onrender.com/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
   let user = await User.findOne({ email: profile.emails[0].value });
   if (!user) {
@@ -63,22 +64,31 @@ passport.deserializeUser(async (id, done) => {
   done(null, user);
 });
 
-app.use(session({ secret: 'otroSecreto', resave: false, saveUninitialized: false }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'otroSecreto',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  }
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Login usuario
+// Rutas de autenticación
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://laboratorio06-web-ghpb.vercel.app';
+
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    console.warn('Intento de login inválido:', { ip: req.ip, body: req.body });
     return res.status(400).json({ error: 'Email y contraseña requeridos' });
   }
   try {
     const { user, token } = await login(email, password);
     res.json({ user, token });
   } catch (err) {
-    console.warn('Login fallido:', { ip: req.ip, email, error: err.message });
     res.status(401).json({ error: err.message });
   }
 });
@@ -87,8 +97,6 @@ app.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login', session: true }),
   (req, res) => {
@@ -96,7 +104,11 @@ app.get('/auth/google/callback',
     const email = req.user.email;
     const rol = req.user.rol || 'user';
     const jwt = require('jsonwebtoken');
-    const token = jwt.sign({ id: req.user._id, email, rol }, process.env.JWT_SECRET || 'secreto', { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: req.user._id, email, rol },
+      process.env.JWT_SECRET || 'secreto',
+      { expiresIn: '1h' }
+    );
     res.redirect(
       `${FRONTEND_URL}/account?nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&rol=${encodeURIComponent(rol)}&token=${encodeURIComponent(token)}`
     );
@@ -245,6 +257,8 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(__dirname + '/mongo-node-lab/uploads'));
 
+// Iniciar servidor
+const PORT = process.env.PORT || 3001;
 connectMongoose().then(() => {
-  app.listen(3001, () => console.log('Servidor Express en http://localhost:3001'));
+  app.listen(PORT, () => console.log(`Servidor Express en puerto ${PORT}`));
 });
