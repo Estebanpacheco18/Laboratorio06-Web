@@ -20,7 +20,24 @@ const app = express();
 
 // Seguridad y CORS
 app.use(helmet());
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://laboratorio06-web-ghpb.vercel.app', // de Vercel
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Permite solicitudes sin origen (como Postman) o desde los orígenes permitidos
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Passport Google
@@ -70,6 +87,8 @@ app.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 app.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login', session: true }),
   (req, res) => {
@@ -79,8 +98,8 @@ app.get('/auth/google/callback',
     const jwt = require('jsonwebtoken');
     const token = jwt.sign({ id: req.user._id, email, rol }, process.env.JWT_SECRET || 'secreto', { expiresIn: '1h' });
     res.redirect(
-  `http://localhost:3000/account?nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&rol=${encodeURIComponent(rol)}&token=${encodeURIComponent(token)}`
-);
+      `${FRONTEND_URL}/account?nombre=${encodeURIComponent(nombre)}&email=${encodeURIComponent(email)}&rol=${encodeURIComponent(rol)}&token=${encodeURIComponent(token)}`
+    );
   }
 );
 
@@ -218,7 +237,10 @@ app.post('/api/upload', upload.single('imagen'), (req, res) => {
 
 // Servir archivos estáticos de la carpeta uploads con CORS
 app.use('/uploads', (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
 }, express.static(__dirname + '/mongo-node-lab/uploads'));
