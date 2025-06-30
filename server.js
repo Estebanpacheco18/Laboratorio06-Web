@@ -52,7 +52,7 @@ passport.use(new GoogleStrategy({
     user = await User.create({
       nombre: profile.displayName,
       email: profile.emails[0].value,
-      password: 'google'
+      google: true // <-- marca como usuario Google
     });
   }
   return done(null, user);

@@ -15,6 +15,9 @@ async function login(email, password) {
   // Busca primero en usuarios normales
   let user = await User.findOne({ email });
   if (user) {
+    if (user.google) {
+      throw new Error('Este usuario solo puede iniciar sesión con Google');
+    }
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new Error('La contraseña es incorrecta');
     // Si el usuario tiene rol, úsalo; si no, default a 'user'
