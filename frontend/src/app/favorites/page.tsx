@@ -191,11 +191,11 @@ useEffect(() => {
                 >
                   <div className="h-40 bg-gray-100 rounded mb-3 flex items-center justify-center overflow-hidden">
                     {product.imagen ? (
-<img
-  src={`${process.env.NEXT_PUBLIC_API_URL}${product.imagen}`}
-  alt={product.nombre}
-  className="h-full w-full object-contain"
-/>
+              <img
+                src={product.imagen}
+                alt={product.nombre}
+                className="h-full w-full object-contain"
+              />
                     ) : (
                       <span className="text-gray-400 text-sm">Imagen</span>
                     )}

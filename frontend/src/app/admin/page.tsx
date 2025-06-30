@@ -224,7 +224,7 @@ export default function AdminProductsPage() {
                       />
                       {(editImagenUrl || p.imagen) && (
                         <img
-                          src={`${apiUrl}${editImagenUrl || p.imagen}`}
+                          src={editImagenUrl || p.imagen}
                           alt={p.nombre}
                           className="h-16 w-16 object-cover rounded mt-1"
                         />
@@ -233,9 +233,9 @@ export default function AdminProductsPage() {
                   ) : (
                     p.imagen && (
                       <img
-                        src={`${apiUrl}${p.imagen}`}
+                        src={p.imagen}
                         alt={p.nombre}
-                        className="h-16 w-16 object-cover rounded"
+                        className="h-full w-full object-contain"
                       />
                     )
                   )}

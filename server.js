@@ -15,8 +15,12 @@ const helmet = require('helmet');
 const { authMiddleware, requireAdmin } = require('./mongo-node-lab/auth');
 const multer = require('multer');
 const path = require('path');
-
 const app = express();
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
 // Configuración de seguridad y CORS
 app.use(helmet());
@@ -240,11 +244,31 @@ const fileFilter = (req, file, cb) => {
     cb(new Error('Solo se permiten imágenes (jpg, jpeg, png, gif)'));
   }
 };
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage: multer.memoryStorage() }); // Usar memoria, no disco
 
-app.post('/api/upload', upload.single('imagen'), (req, res) => {
+app.post('/api/upload', upload.single('imagen'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No se subió ninguna imagen' });
-  res.json({ url: `/uploads/${req.file.filename}` });
+
+  const fileExt = req.file.originalname.split('.').pop();
+  const fileName = `${Date.now()}.${fileExt}`;
+  const filePath = `${fileName}`;
+
+  const { error } = await supabase.storage
+    .from(process.env.SUPABASE_BUCKET)
+    .upload(filePath, req.file.buffer, {
+      contentType: req.file.mimetype,
+      upsert: false
+    });
+
+  if (error) {
+    return res.status(500).json({ error: 'Error al subir la imagen a Supabase' });
+  }
+
+  const { data } = supabase.storage
+    .from(process.env.SUPABASE_BUCKET)
+    .getPublicUrl(filePath);
+
+  res.json({ url: data.publicUrl });
 });
 
 // Servir archivos estáticos de la carpeta uploads con CORS
