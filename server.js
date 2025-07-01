@@ -349,6 +349,18 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
   }
 });
 
+app.get('/api/admin/orders', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const pedidos = await models.Pedido.find()
+      .populate('userId', 'nombre email')
+      .populate('productos.productoId', 'nombre')
+      .lean();
+    res.json(pedidos);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener pedidos' });
+  }
+});
+
 // Iniciar servidor
 const PORT = process.env.PORT || 3001;
 connectMongoose().then(() => {
