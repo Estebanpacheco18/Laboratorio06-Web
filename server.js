@@ -83,7 +83,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Rutas de autenticación
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://laboratorio06-web-ghpb.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://laboratorio06-web-1mho.vercel.app';
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
@@ -315,6 +315,18 @@ app.put('/api/myorders/:id', authMiddleware, async (req, res) => {
   }
 });
 
+app.get('/api/admin/orders', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const pedidos = await models.Pedido.find()
+      .populate('userId', 'nombre email')
+      .populate('productos.productoId', 'nombre')
+      .lean();
+    res.json(pedidos);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener pedidos' });
+  }
+});
+
 app.put('/api/admin/orders/:id', authMiddleware, requireAdmin, async (req, res) => {
   try {
     console.log('Admin update pedido ID:', req.params.id);
@@ -346,18 +358,6 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
     res.json(pedido);
   } catch (err) {
     res.status(400).json({ error: err.message });
-  }
-});
-
-app.get('/api/admin/orders', authMiddleware, requireAdmin, async (req, res) => {
-  try {
-    const pedidos = await models.Pedido.find()
-      .populate('userId', 'nombre email')
-      .populate('productos.productoId', 'nombre')
-      .lean();
-    res.json(pedidos);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al obtener pedidos' });
   }
 });
 
