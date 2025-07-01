@@ -163,6 +163,7 @@ export default function AdminProductsPage() {
         </div>
         <div className="flex gap-2">
           <button onClick={handleGoHome} className="bg-[#F0EBE0] text-[#4C4C3A] px-4 py-2 rounded-xl hover:bg-[#e0dbc7] transition border">Ir a la tienda</button>
+          <button onClick={() => router.push('/admin/providers')} className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-800 transition">Ver Proveedores</button>
           <button onClick={handleLogout} className="bg-[#6B6C4F] text-white px-4 py-2 rounded-xl hover:bg-[#4C4C3A] transition">Cerrar sesión</button>
         </div>
       </nav>

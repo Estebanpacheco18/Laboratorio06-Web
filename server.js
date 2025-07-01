@@ -375,6 +375,15 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
   }
 });
 
+app.get('/api/providers', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const proveedores = await models.Proveedor.find().lean();
+    res.json(proveedores);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener proveedores' });
+  }
+});
+
 // Iniciar servidor
 const PORT = process.env.PORT || 3001;
 connectMongoose().then(() => {
