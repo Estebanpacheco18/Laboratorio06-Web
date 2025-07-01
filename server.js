@@ -317,6 +317,7 @@ app.put('/api/myorders/:id', authMiddleware, async (req, res) => {
 
 app.put('/api/admin/orders/:id', authMiddleware, requireAdmin, async (req, res) => {
   try {
+    console.log('Admin update pedido ID:', req.params.id);
     const pedido = await models.Pedido.findByIdAndUpdate(
       req.params.id,
       { estado: req.body.estado },
