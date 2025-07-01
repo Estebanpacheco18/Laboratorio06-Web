@@ -63,8 +63,22 @@ export default function CartPage() {
         setTotal(newTotal);
     }, [cartItems]);
 
-    const handleQuantityChange = (productId: string, newQuantity: number) => {
+    const handleQuantityChange = async (productId: string, newQuantity: number) => {
         if (newQuantity < 1) return;
+
+        // Obtener el stock actual del producto desde el backend
+        let stock = 0;
+        try {
+            const res = await axios.get(`${apiUrl}/api/products/${productId}`);
+            stock = res.data.stock;
+        } catch {
+            return;
+        }
+
+        if (newQuantity > stock) {
+            alert("No hay suficiente stock disponible.");
+            return;
+        }
 
         setCartItems(prevItems => {
             const updatedItems = prevItems.map(item =>

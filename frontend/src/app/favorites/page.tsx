@@ -58,20 +58,20 @@ export default function FavoritesPage() {
   };
 
   const addToCart = (product: any) => {
-    const updatedCart = [...cart];
-    const index = updatedCart.findIndex(item => item.productId === product._id);
-    const cantidadEnCarrito = index !== -1 ? updatedCart[index].cantidad : 0;
-    if (cantidadEnCarrito >= product.stock) {
-      alert("No hay suficiente stock disponible.");
-      return;
-    }
-    if (index !== -1) {
-      updatedCart[index].cantidad += 1;
-    } else {
-      updatedCart.push({ productId: product._id, cantidad: 1 });
-    }
-    setCart(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
+      const updatedCart = [...cart];
+      const index = updatedCart.findIndex(item => item.productId === product._id);
+      const cantidadEnCarrito = index !== -1 ? updatedCart[index].cantidad : 0;
+      if (cantidadEnCarrito >= product.stock) {
+          alert("No hay suficiente stock disponible.");
+          return;
+      }
+      if (index !== -1) {
+          updatedCart[index].cantidad += 1;
+      } else {
+          updatedCart.push({ productId: product._id, cantidad: 1 });
+      }
+      setCart(updatedCart);
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
   return (
