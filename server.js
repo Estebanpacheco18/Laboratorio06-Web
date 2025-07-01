@@ -27,7 +27,8 @@ app.use(helmet());
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://laboratorio06-web-1mho.vercel.app'
+  'https://laboratorio06-web-1mho.vercel.app',
+  'https://laboratorio06-web-1mho-git-main-estebanpacheco18s-projects.vercel.app'
 ];
 
 app.use(cors({
