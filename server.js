@@ -349,6 +349,20 @@ app.post('/api/orders', authMiddleware, async (req, res) => {
     if (!productos || !Array.isArray(productos) || productos.length === 0) {
       return res.status(400).json({ error: 'Productos requeridos' });
     }
+
+    // Validar y actualizar stock
+    for (const item of productos) {
+      const producto = await models.Producto.findById(item.productoId);
+      if (!producto) {
+        return res.status(404).json({ error: `Producto no encontrado: ${item.productoId}` });
+      }
+      if (producto.stock < item.cantidad) {
+        return res.status(400).json({ error: `Stock insuficiente para ${producto.nombre}` });
+      }
+      producto.stock -= item.cantidad;
+      await producto.save();
+    }
+
     const pedido = await models.Pedido.create({
       userId: req.user.id,
       productos,

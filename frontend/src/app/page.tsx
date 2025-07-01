@@ -196,6 +196,7 @@ export default function StoreHomePage() {
                       <p className="text-sm text-[#6B6C4F] mt-1 line-clamp-2">{product.descripcion}</p>
                       <div className="mt-3 flex items-center justify-between">
                         <span className="text-[#4C4C3A] font-bold text-lg">${product.precio}</span>
+                        <span className="text-xs text-gray-500 ml-2">Stock: {product.stock}</span>
                         <Heart
                           size={22}
                           fill={favorites.includes(product._id) ? "currentColor" : "none"}

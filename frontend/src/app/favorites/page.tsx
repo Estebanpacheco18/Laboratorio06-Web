@@ -58,19 +58,20 @@ export default function FavoritesPage() {
   };
 
   const addToCart = (product: any) => {
-    const existing = cart.find(item => item.productId === product._id);
-    let updated;
-    if (existing) {
-      updated = cart.map(item =>
-        item.productId === product._id
-          ? { ...item, cantidad: item.cantidad + 1 }
-          : item
-      );
-    } else {
-      updated = [...cart, { productId: product._id, cantidad: 1 }];
+    const updatedCart = [...cart];
+    const index = updatedCart.findIndex(item => item.productId === product._id);
+    const cantidadEnCarrito = index !== -1 ? updatedCart[index].cantidad : 0;
+    if (cantidadEnCarrito >= product.stock) {
+      alert("No hay suficiente stock disponible.");
+      return;
     }
-    setCart(updated);
-    localStorage.setItem('cart', JSON.stringify(updated));
+    if (index !== -1) {
+      updatedCart[index].cantidad += 1;
+    } else {
+      updatedCart.push({ productId: product._id, cantidad: 1 });
+    }
+    setCart(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
   return (

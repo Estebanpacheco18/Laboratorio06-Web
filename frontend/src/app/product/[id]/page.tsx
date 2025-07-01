@@ -98,25 +98,20 @@ useEffect(() => {
 
       {/* CONTENIDO DEL PRODUCTO */}
       <div className="max-w-4xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
-          <h1 className="text-3xl font-bold mb-4 text-[#4C4C3A]">{product.nombre}</h1>
-          <p className="text-gray-600 mb-4 text-lg">
-             {product.descripcion}
-             {product.proveedor && (
-               <span>
-                 <br />
-                 <strong>Proveedor:</strong> {product.proveedor.nombre} (<a href={`mailto:${product.proveedor.email}`}>{product.proveedor.email}</a>)
-               </span>
-             )}
-           </p>
-          <p className="text-3xl font-bold text-[#6B6C4F] mb-6">${product.precio.toFixed(2)}</p>
-          <button
-            onClick={handleAddToCart}
-            className="w-full bg-[#6B6C4F] text-white py-4 rounded-xl hover:bg-[#4C4C3A] transition font-bold text-lg shadow-xl"
-          >
-            Agregar al carrito
-          </button>
-        </div>
+<div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+  <h1 className="text-3xl font-bold mb-4 text-[#4C4C3A]">{product.nombre}</h1>
+  <p className="text-gray-600 mb-4 text-lg">
+    {product.descripcion}
+  </p>
+  <p className="text-lg text-gray-500 mb-2">Stock disponible: {product.stock}</p>
+  <p className="text-3xl font-bold text-[#6B6C4F] mb-6">${product.precio.toFixed(2)}</p>
+  <button
+    onClick={handleAddToCart}
+    className="w-full bg-[#6B6C4F] text-white py-4 rounded-xl hover:bg-[#4C4C3A] transition font-bold text-lg shadow-xl"
+  >
+    Agregar al carrito
+  </button>
+</div>
       </div>
     </main>
   );
