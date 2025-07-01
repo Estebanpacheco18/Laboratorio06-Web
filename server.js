@@ -150,15 +150,18 @@ app.post('/api/register',
 // Productos públicos
 app.get('/api/products', async (req, res) => {
   try {
-    const productos = await models.Producto.find().
-    populate('categoriaId').
-    populate('proveedorId').
-    lean();
-    const productosConCategoria = productos.map(p => ({
+    const productos = await models.Producto.find()
+      .populate('categoriaId')
+      .populate('proveedorId')
+      .lean();
+    const productosConDatos = productos.map(p => ({
       ...p,
-      categoria: p.categoriaId ? p.categoriaId.nombre : null
+      categoria: p.categoriaId ? p.categoriaId.nombre : null,
+      proveedor: p.proveedorId
+        ? { nombre: p.proveedorId.nombre, email: p.proveedorId.email }
+        : null
     }));
-    res.json(productosConCategoria);
+    res.json(productosConDatos);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener productos' });
   }
@@ -312,15 +315,18 @@ app.put('/api/myorders/:id', authMiddleware, async (req, res) => {
   }
 });
 
-app.get('/api/admin/orders', authMiddleware, requireAdmin, async (req, res) => {
+app.put('/api/admin/orders/:id', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    const pedidos = await models.Pedido.find()
-      .populate('userId', 'nombre email')
-      .populate('productos.productoId', 'nombre')
-      .lean();
-    res.json(pedidos);
+    console.log('Admin update pedido ID:', req.params.id);
+    const pedido = await models.Pedido.findByIdAndUpdate(
+      req.params.id,
+      { estado: req.body.estado },
+      { new: true }
+    );
+    if (!pedido) return res.status(404).json({ error: 'Pedido no encontrado' });
+    res.json(pedido);
   } catch (err) {
-    res.status(500).json({ error: 'Error al obtener pedidos' });
+    res.status(400).json({ error: err.message });
   }
 });
 

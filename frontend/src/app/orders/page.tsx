@@ -51,8 +51,12 @@ export default function OrdersPage() {
 
   const handleEstado = async (id: string, estado: string) => {
     if (!token) return;
+    const endpoint =
+      rol === "admin"
+        ? `${apiUrl}/api/admin/orders/${id}`
+        : `${apiUrl}/api/myorders/${id}`;
     await axios.put(
-      `${apiUrl}/api/myorders/${id}`,
+      endpoint,
       { estado },
       { headers: { Authorization: `Bearer ${token}` } }
     );
