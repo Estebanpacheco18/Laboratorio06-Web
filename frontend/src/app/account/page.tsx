@@ -118,16 +118,34 @@ export default function AccountPage() {
           </div>
           <div className="mt-8 w-full flex flex-col gap-4">
             {nombre ? (
-              <button onClick={handleLogout} className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full">
+              <button
+                onClick={handleLogout}
+                className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full"
+              >
                 Cerrar sesión
               </button>
             ) : (
-              <button onClick={() => router.push('/login')} className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full">
+              <button
+                onClick={() => router.push('/login')}
+                className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full"
+              >
                 Iniciar sesión
               </button>
             )}
+          
+            {/* Botón para ver pedidos */}
+            <button
+              onClick={() => router.push('/orders')}
+              className="bg-[#6B6C4F] text-white px-6 py-3 rounded-xl hover:bg-[#4C4C3A] transition font-semibold w-full"
+            >
+              Ver mis pedidos
+            </button>
+          
             {rol === 'admin' && (
-              <button onClick={handleGoAdmin} className="bg-yellow-600 text-white px-6 py-3 rounded-xl hover:bg-yellow-800 transition font-semibold w-full">
+              <button
+                onClick={handleGoAdmin}
+                className="bg-yellow-600 text-white px-6 py-3 rounded-xl hover:bg-yellow-800 transition font-semibold w-full"
+              >
                 Ir al panel de administración
               </button>
             )}

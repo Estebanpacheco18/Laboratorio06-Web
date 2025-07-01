@@ -150,7 +150,10 @@ app.post('/api/register',
 // Productos públicos
 app.get('/api/products', async (req, res) => {
   try {
-    const productos = await models.Producto.find().populate('categoriaId').lean();
+    const productos = await models.Producto.find().
+    populate('categoriaId').
+    populate('proveedorId').
+    lean();
     const productosConCategoria = productos.map(p => ({
       ...p,
       categoria: p.categoriaId ? p.categoriaId.nombre : null
@@ -281,6 +284,45 @@ app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
 }, express.static(__dirname + '/mongo-node-lab/uploads'));
+
+// Obtener pedidos del usuario autenticado
+app.get('/api/myorders', authMiddleware, async (req, res) => {
+  try {
+    const pedidos = await models.Pedido.find({ userId: req.user.id })
+      .populate('productos.productoId')
+      .lean();
+    res.json(pedidos);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener pedidos' });
+  }
+});
+
+// Cambiar estado de un pedido
+app.put('/api/myorders/:id', authMiddleware, async (req, res) => {
+  try {
+    const pedido = await models.Pedido.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
+      { estado: req.body.estado },
+      { new: true }
+    );
+    if (!pedido) return res.status(404).json({ error: 'Pedido no encontrado' });
+    res.json(pedido);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get('/api/admin/orders', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const pedidos = await models.Pedido.find()
+      .populate('userId', 'nombre email')
+      .populate('productos.productoId', 'nombre')
+      .lean();
+    res.json(pedidos);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener pedidos' });
+  }
+});
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3001;
