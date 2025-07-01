@@ -12,7 +12,14 @@ export default function PaymentPage() {
   const [cvv, setCvv] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  const [cart, setCart] = useState<any[]>([]);
+
+   useEffect(() => {
+     if (typeof window !== "undefined") {
+       const storedCart = localStorage.getItem('cart');
+       setCart(storedCart ? JSON.parse(storedCart) : []);
+     }
+   }, []);
 
   useEffect(() => {
     const amount = parseFloat(localStorage.getItem('totalAmount') || '0');
