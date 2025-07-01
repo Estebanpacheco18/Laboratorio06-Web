@@ -1,67 +1,61 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from "react"
-import { Search } from "lucide-react"
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 export default function PaymentPage() {
   const [totalAmount, setTotalAmount] = useState(0);
-  const [cardNumber, setCardNumber] = useState("")
-  const [cardHolder, setCardHolder] = useState("")
-  const [expiryDate, setExpiryDate] = useState("")
-  const [cvv, setCvv] = useState("")
-  const [userName, setUserName] = useState<string | null>(null)
-  const [search, setSearch] = useState("")
-  const [error, setError] = useState<string | null>(null)
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardHolder, setCardHolder] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [userName, setUserName] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const amount = parseFloat(localStorage.getItem('totalAmount') || '0');
     setTotalAmount(amount);
-    setUserName(localStorage.getItem("nombre"))
-  }, [])
+    setUserName(localStorage.getItem("nombre"));
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("nombre")
-    window.location.href = "/"
-  }
+    localStorage.removeItem("token");
+    localStorage.removeItem("nombre");
+    window.location.href = "/";
+  };
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "")
+    const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 16) {
-      setCardNumber(value)
+      setCardNumber(value);
     }
-  }
+  };
 
   const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, "")
-    if (value.length > 4) value = value.slice(0, 4)
-    if (value.length > 2) value = value.slice(0, 2) + "/" + value.slice(2)
-    setExpiryDate(value)
-  }
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 4) value = value.slice(0, 4);
+    if (value.length > 2) value = value.slice(0, 2) + "/" + value.slice(2);
+    setExpiryDate(value);
+  };
 
   const handleCardHolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Solo letras y espacios, máximo 30 caracteres
     let value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, "");
     if (value.length > 30) value = value.slice(0, 30);
     setCardHolder(value);
-  }
+  };
+
+  const isValidCardHolder = (name: string) => {
+    return /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]{1,30}$/.test(name.trim());
+  };
 
   const handleCancel = () => {
-    window.location.href = "/"
-  }
+    window.location.href = "/";
+  };
 
-  // Validación del nombre del titular
-  const isValidCardHolder = (name: string) => {
-    // Solo letras y espacios, no vacío, no muy largo
-    return /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]{1,30}$/.test(name.trim());
-  }
-
-  // Lógica para el pago
   const handlePayment = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validaciones
     if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
       setError("Todos los campos son obligatorios.");
       return;
@@ -88,13 +82,14 @@ export default function PaymentPage() {
       window.location.href = "/login";
       return;
     }
-    alert("¡Pago realizado con éxito!");
+
+    alert("✅ ¡Pago realizado con éxito!");
     localStorage.removeItem('cart');
     window.location.href = "/";
-  }
+  };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#F9F6F1] to-[#EAE6DF] text-[#333] font-sans">
+    <main className="min-h-screen bg-gradient-to-br from-[#DCD7C9] via-[#C5BFA5] to-[#8B8A5C] text-[#2E2F1B] font-sans">
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur shadow-md px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-4">
@@ -106,39 +101,39 @@ export default function PaymentPage() {
 
         <div className="flex items-center gap-4">
           <ul className="hidden md:flex gap-6 font-medium text-[#2E2F1B]">
-            <li>
-              <a href="/favorites" className="hover:text-[#6B6C4F] transition">Favoritos</a>
-            </li>
-            <li>
-              <a href="/account" className="hover:text-[#6B6C4F] transition">Mi Cuenta</a>
-            </li>
+            <li><a href="/favorites" className="hover:text-[#6B6C4F] transition">Favoritos</a></li>
+            <li><a href="/account" className="hover:text-[#6B6C4F] transition">Mi Cuenta</a></li>
           </ul>
 
           {userName ? (
-            <button
-              onClick={handleLogout}
-              className="bg-[#6B6C4F] text-white px-4 py-2 rounded-full hover:bg-[#4C4C3A] transition"
-            >
+            <button onClick={handleLogout} className="bg-[#6B6C4F] text-white px-4 py-2 rounded-full hover:bg-[#4C4C3A] transition">
               Cerrar sesión
             </button>
           ) : (
-            <a
-              href="/login"
-              className="bg-[#6B6C4F] text-white px-4 py-2 rounded-full hover:bg-[#4C4C3A] transition"
-            >
+            <a href="/login" className="bg-[#6B6C4F] text-white px-4 py-2 rounded-full hover:bg-[#4C4C3A] transition">
               Iniciar sesión
             </a>
           )}
         </div>
       </nav>
 
-      {/* PAGO */}
-      <section className="flex flex-col items-center justify-center py-16 px-4">
-        <h2 className="text-3xl font-bold text-[#2E2F1B] mb-8">Método de Pago</h2>
+      {/* FORMULARIO DE PAGO */}
+      <motion.section
+        className="flex flex-col items-center justify-center py-16 px-4"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h2 className="text-3xl font-bold text-[#2E2F1B] mb-4">Método de Pago</h2>
         <div className="text-xl font-semibold mb-8">Total a pagar: ${totalAmount.toFixed(2)}</div>
 
-        <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-200 space-y-6">
-          {/* Simulación de tarjeta */}
+        <motion.div
+          className="w-full max-w-md bg-white p-8 rounded-xl shadow-xl border border-gray-200 space-y-6"
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Tarjeta simulada */}
           <div className="bg-gradient-to-tr from-[#6B6C4F] to-[#4C4C3A] text-white rounded-lg p-5 shadow-md">
             <div className="text-sm mb-2 tracking-widest">Número de tarjeta</div>
             <div className="text-xl font-mono tracking-widest mb-4">
@@ -156,13 +151,13 @@ export default function PaymentPage() {
             </div>
           </div>
 
-          {/* Formulario */}
           <form className="space-y-4" onSubmit={handlePayment}>
             {error && (
-              <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 text-sm text-center">
+              <div className="bg-red-100 text-red-700 px-4 py-2 rounded text-sm text-center">
                 {error}
               </div>
             )}
+
             <div>
               <label className="block text-sm font-medium text-[#333] mb-1">Número de tarjeta</label>
               <input
@@ -205,8 +200,8 @@ export default function PaymentPage() {
                   type="text"
                   value={cvv}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "")
-                    if (value.length <= 4) setCvv(value)
+                    const value = e.target.value.replace(/\D/g, "");
+                    if (value.length <= 4) setCvv(value);
                   }}
                   placeholder="123"
                   maxLength={4}
@@ -215,23 +210,16 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="w-full mt-4 bg-[#6B6C4F] text-white py-2 rounded-md hover:bg-[#4C4C3A] transition"
-            >
+            <button type="submit" className="w-full bg-[#6B6C4F] text-white py-3 rounded-md hover:bg-[#4C4C3A] transition">
               Pagar ahora
             </button>
 
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="w-full mt-2 bg-red-100 text-red-700 py-2 rounded-md hover:bg-red-200 transition"
-            >
+            <button type="button" onClick={handleCancel} className="w-full bg-red-100 text-red-700 py-3 rounded-md hover:bg-red-200 transition">
               Cancelar pago
             </button>
           </form>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
     </main>
-  )
+  );
 }
