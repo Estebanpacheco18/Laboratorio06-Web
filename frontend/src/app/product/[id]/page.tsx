@@ -33,26 +33,27 @@ useEffect(() => {
 
   // Maneja la adición de un producto al carrito
   const handleAddToCart = () => {
-    if (!product) return; // Asegúrate de que el producto esté cargado
-
+    if (!product) return;
+  
     const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    // Busca si el producto ya existe en el carrito
     const existingItemIndex = currentCart.findIndex((item: any) => item.productId === product._id);
-
+    const cantidadEnCarrito = existingItemIndex >= 0 ? currentCart[existingItemIndex].cantidad : 0;
+  
+    if (cantidadEnCarrito >= product.stock) {
+      // Puedes mostrar un mensaje de error aquí si quieres
+      return;
+    }
+  
     if (existingItemIndex >= 0) {
-      // Si el producto ya existe, incrementa su cantidad
       currentCart[existingItemIndex].cantidad += 1;
     } else {
-      // Si el producto no existe, agrégalo con cantidad 1
       currentCart.push({
-        productId: product._id, // Guarda el ID del producto
+        productId: product._id,
         cantidad: 1
       });
     }
-
+  
     localStorage.setItem('cart', JSON.stringify(currentCart));
-    // Aquí podrías mostrar un mensaje de éxito más amigable al usuario,
-    // por ejemplo, un toast o una notificación. Se ha eliminado el alert().
   };
 
   // Muestra un mensaje de carga si el producto aún no se ha cargado
