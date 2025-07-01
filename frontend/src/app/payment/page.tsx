@@ -12,6 +12,7 @@ export default function PaymentPage() {
   const [cvv, setCvv] = useState("");
   const [userName, setUserName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
   useEffect(() => {
     const amount = parseFloat(localStorage.getItem('totalAmount') || '0');
@@ -85,13 +86,17 @@ export default function PaymentPage() {
      }
    
      // Obtener productos del carrito
-     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-     const productos = cart.map((item: any) => ({
-       productoId: item.productId,
-       cantidad: item.cantidad,
-       precioUnitario: item.precio
-     }));
-   
+     // Obtener detalles de productos desde el backend
+     const productos = await Promise.all(
+       cart.map(async (item: any) => {
+         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${item.productId}`);
+         return {
+           productoId: item.productId,
+           cantidad: item.cantidad,
+           precioUnitario: res.data.precio
+         };
+       })
+     );
      try {
        await axios.post(
          `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
