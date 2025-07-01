@@ -324,6 +324,25 @@ app.get('/api/admin/orders', authMiddleware, requireAdmin, async (req, res) => {
   }
 });
 
+// Crear un nuevo pedido
+app.post('/api/orders', authMiddleware, async (req, res) => {
+  try {
+    const { productos, total } = req.body;
+    if (!productos || !Array.isArray(productos) || productos.length === 0) {
+      return res.status(400).json({ error: 'Productos requeridos' });
+    }
+    const pedido = await models.Pedido.create({
+      userId: req.user.id,
+      productos,
+      total,
+      estado: 'pendiente'
+    });
+    res.json(pedido);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // Iniciar servidor
 const PORT = process.env.PORT || 3001;
 connectMongoose().then(() => {

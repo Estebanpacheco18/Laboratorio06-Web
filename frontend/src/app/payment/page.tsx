@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import axios from "axios";
 
 export default function PaymentPage() {
   const [totalAmount, setTotalAmount] = useState(0);
@@ -52,41 +53,60 @@ export default function PaymentPage() {
     window.location.href = "/";
   };
 
-  const handlePayment = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
-      setError("Todos los campos son obligatorios.");
-      return;
-    }
-    if (cardNumber.length !== 16) {
-      setError("El número de tarjeta debe tener 16 dígitos.");
-      return;
-    }
-    if (!isValidCardHolder(cardHolder)) {
-      setError("El nombre del titular solo puede contener letras y espacios, y no debe ser muy largo.");
-      return;
-    }
-    if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
-      setError("La fecha de expiración debe tener el formato MM/AA.");
-      return;
-    }
-    if (cvv.length < 3 || cvv.length > 4) {
-      setError("El CVV debe tener 3 o 4 dígitos.");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    alert("✅ ¡Pago realizado con éxito!");
-    localStorage.removeItem('cart');
-    window.location.href = "/";
-  };
+   const handlePayment = async (e: React.FormEvent) => {
+     e.preventDefault();
+     setError(null);
+   
+     if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
+       setError("Todos los campos son obligatorios.");
+       return;
+     }
+     if (cardNumber.length !== 16) {
+       setError("El número de tarjeta debe tener 16 dígitos.");
+       return;
+     }
+     if (!isValidCardHolder(cardHolder)) {
+       setError("El nombre del titular solo puede contener letras y espacios, y no debe ser muy largo.");
+       return;
+     }
+     if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
+       setError("La fecha de expiración debe tener el formato MM/AA.");
+       return;
+     }
+     if (cvv.length < 3 || cvv.length > 4) {
+       setError("El CVV debe tener 3 o 4 dígitos.");
+       return;
+     }
+   
+     const token = localStorage.getItem("token");
+     if (!token) {
+       window.location.href = "/login";
+       return;
+     }
+   
+     // Obtener productos del carrito
+     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+     const productos = cart.map((item: any) => ({
+       productoId: item.productId,
+       cantidad: item.cantidad,
+       precioUnitario: item.precio
+     }));
+   
+     try {
+       await axios.post(
+         `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
+         { productos, total: totalAmount },
+         { headers: { Authorization: `Bearer ${token}` } }
+       );
+     } catch (err) {
+       setError("Error al registrar el pedido.");
+       return;
+     }
+   
+     alert("✅ ¡Pago realizado con éxito!");
+     localStorage.removeItem('cart');
+     window.location.href = "/";
+   };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#DCD7C9] via-[#C5BFA5] to-[#8B8A5C] text-[#2E2F1B] font-sans">
