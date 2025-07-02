@@ -1,58 +1,108 @@
-# Laboratorio06-Web
- Desarrollo del laboratorio 6 (Antes)
+# StockNSELL - Laboratorio06-Web
+ Plataforma web de gestión de inventario y ventas, con autenticación (incluyendo Google), panel de administración, pedidos, carrito, favoritos y subida de imágenes a Supabase.
+
+---
 
  ### Estructura del Proyecto
 
-/mongo-node-lab      # Backend (Express, Mongoose, lógica de negocio)
-/frontend            # Frontend (Next.js)
-server.js            # Servidor Express principal
+```
+/mongo-node-lab      # Backend (Express, Mongoose, lógica de negocio, modelos, autenticación)
+/frontend            # Frontend (Next.js, React, TailwindCSS)
+/server.js           # Servidor Express principal (punto de entrada backend)
+```
 
 ---
 
 ### Configuración del Backend
 
-Instalación de dependencias
+**Instala las dependencias**  
+   Desde la raíz del proyecto:
 
-En la raíz del backend (mongo-node-lab):
+   ```sh
+   npm install
+   cd mongo-node-lab
+   npm install
+   ```
 
-npm install express mongoose bcryptjs jsonwebtoken passport passport-google-oauth20 cors dotenv
 
-
-### Edita .env:
+**Configura variables de entorno**  
 
 MONGO_URI=...
 JWT_SECRET=...
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 
----
+
+**Ejecuta el backend**  
+   Desde la raíz del proyecto:
+
+   ```sh
+   node server.js
+   ```
+
 
 Se usa servicios como MongoDB Atlas
 Gerenamos tockens por cuestiones de seguridad
 Usamos los servicios de Google para la autenticacion e inicio de sesion
 
 ---
-### Instalar Axios en el frontend
 
-cd frontend
-npm install axios
+## Configuración del Frontend
+
+**Instala las dependencias**  
+ Desde la carpeta `frontend`:
+
+   ```sh
+   npm install
+   ```
 
 ---
 
 
-## Comandos para ejecutar el proyecto
+**Ejecuta el frontend**  
 
-### Ejecutar el backend
+   ```sh
+   npm run dev
+   ```
 
-Desde la raíz del proyecto:
+   El frontend corre por defecto en el puerto `3000`.
 
+---
+
+## Funcionalidades Principales
+
+- **Autenticación**: Registro, login, login con Google, JWT, roles (usuario/admin).
+- **Gestión de productos**: CRUD de productos (admin), subida de imágenes a Supabase.
+- **Gestión de categorías y proveedores**.
+- **Carrito de compras y favoritos** (localStorage).
+- **Pedidos**: Creación, historial, cambio de estado (admin y usuario).
+- **Panel de administración**: Gestión de productos y proveedores.
+- **Frontend moderno**: Next.js, React, TailwindCSS, Axios, animaciones con Framer Motion.
+
+---
+
+## Comandos Útiles
+
+### Backend
+
+```sh
 node server.js
+```
 
+### Frontend
 
-### Ejecutar el frontend
-
-Desde la carpeta frontend:
-
+```sh
+cd frontend
 npm run dev
+```
+
+---
+
+## Notas
+
+- El backend implementa CORS seguro, validación de datos, rate limiting y Helmet.
+- Las imágenes de productos se almacenan en Supabase Storage.
+- El frontend y backend pueden desplegarse en Vercel y Render respectivamente.
+- Para pruebas locales, asegúrate de tener configuradas todas las variables de entorno.
 
 ---
